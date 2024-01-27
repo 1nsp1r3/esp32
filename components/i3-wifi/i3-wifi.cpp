@@ -78,7 +78,7 @@ void i3WifiCheckRequirement(){
  *
  */
 void i3WifiInit(const char *Ssid, const char *Password){
-  ESP_LOGV(I3_WIFI_TAG, "i3WifiInit(Ssid: '%s', Password: '%s')", Ssid, Password);
+  ESP_LOGV(I3_WIFI_TAG, "i3WifiInit(Ssid: '%s', Password: '%s')", Ssid == NULL ? "" : Ssid, Password == NULL ? "" : Password);
 
   i3WifiCheckRequirement();
   ESP_LOGI(I3_WIFI_TAG, "Connecting...");

@@ -37,7 +37,7 @@ esp_err_t _getHandler(httpd_req_t *Req) {
   GetMap::iterator it = _getMap.begin();
   while (it != _getMap.end()){
     if (strcmp(it->first, Req->uri) == 0){
-      return httpd_resp_send(Req, it->second().c_str(), HTTPD_RESP_USE_STRLEN);
+      return httpd_resp_send(Req, it->second(), HTTPD_RESP_USE_STRLEN);
     }
     it++;
   }
@@ -65,7 +65,7 @@ esp_err_t _postHandler(httpd_req_t *Req){
   PostMap::iterator it = _postMap.begin();
   while (it != _postMap.end()){
     if (strcmp(it->first, Req->uri) == 0){
-      it->second(std::string(content));
+      it->second(content);
       httpd_resp_send(Req, "OK", HTTPD_RESP_USE_STRLEN);
       return ESP_OK;
     }
