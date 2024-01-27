@@ -8,6 +8,6 @@
 #include <nvs_flash.h>
 #include <esp_wifi.h>
 
-void i3WifiInit(const char* ssid = NULL, const char* password = NULL);
+void i3WifiInit(const char* Ssid = NULL, const char* Password = NULL);
 
 #endif

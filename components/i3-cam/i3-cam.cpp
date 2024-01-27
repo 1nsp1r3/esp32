@@ -4,6 +4,8 @@
  * Take a screenshot
  */
 camera_fb_t *i3CamScreenshot(camera_fb_t *camera_fb){
+  ESP_LOGV(I3_CAM_TAG, "i3CamScreenshot()");
+
   camera_fb_t *ret;
 
   if (camera_fb) esp_camera_fb_return(camera_fb); //free memory
@@ -16,6 +18,8 @@ camera_fb_t *i3CamScreenshot(camera_fb_t *camera_fb){
  * Configuration
  */
 camera_config_t i3CamConfiguration(){
+  ESP_LOGV(I3_CAM_TAG, "i3CamConfiguration()");
+
   camera_config_t config;
 
   //Pins (AI Thinker - ESP32-CAM)
@@ -78,6 +82,8 @@ camera_config_t i3CamConfiguration(){
  * Init
  */
 void i3CamInit(){
+  ESP_LOGV(I3_CAM_TAG, "i3CamInit()");
+
   ESP_LOGI(I3_CAM_TAG, "Initializing camera...");
   camera_config_t config = i3CamConfiguration();
   esp_err_t err = esp_camera_init(&config);

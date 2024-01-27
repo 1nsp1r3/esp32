@@ -12,20 +12,22 @@ bool ipReceived = false;
 /**
  * Handler
  */
-void i3WifiEventHandler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data){
-  if (event_base == WIFI_EVENT){
-    if (event_id == WIFI_EVENT_STA_START){
+void i3WifiEventHandler(void* Arg, esp_event_base_t Event_base, int32_t Event_id, void* Event_data){
+  ESP_LOGV(I3_WIFI_TAG, "i3WifiEventHandler()");
+
+  if (Event_base == WIFI_EVENT){
+    if (Event_id == WIFI_EVENT_STA_START){
       ESP_LOGV(I3_WIFI_TAG, "WIFI_EVENT/WIFI_EVENT_STA_START");
       esp_wifi_connect();
       connected = true;
     }
-    if (event_id == WIFI_EVENT_STA_DISCONNECTED) ESP_LOGV(I3_WIFI_TAG, "WIFI_EVENT/WIFI_EVENT_STA_DISCONNECTED");
+    if (Event_id == WIFI_EVENT_STA_DISCONNECTED) ESP_LOGV(I3_WIFI_TAG, "WIFI_EVENT/WIFI_EVENT_STA_DISCONNECTED");
   }//WIFI_EVENT
 
-  if (event_base == IP_EVENT){
-    if (event_id == IP_EVENT_STA_GOT_IP){
+  if (Event_base == IP_EVENT){
+    if (Event_id == IP_EVENT_STA_GOT_IP){
       ESP_LOGV(I3_WIFI_TAG, "IP_EVENT/IP_EVENT_STA_GOT_IP");
-      ip_event_got_ip_t* event = (ip_event_got_ip_t*)event_data;
+      ip_event_got_ip_t* event = (ip_event_got_ip_t*)Event_data;
       ESP_LOGD(I3_WIFI_TAG, "IP: %d.%d.%d.%d", IP2STR(&event->ip_info.ip));
       ipReceived = true;
     }
@@ -36,6 +38,7 @@ void i3WifiEventHandler(void* arg, esp_event_base_t event_base, int32_t event_id
  * Requirements for Wifi connection
  */
 void i3WifiCheckRequirement(){
+  ESP_LOGV(I3_WIFI_TAG, "i3WifiCheckRequirement()");
   ESP_LOGI(I3_WIFI_TAG, "Check requirements...");
 
   //NVS is used to store PHY calibration data
@@ -74,7 +77,9 @@ void i3WifiCheckRequirement(){
 /**
  *
  */
-void i3WifiInit(const char *ssid, const char *password){
+void i3WifiInit(const char *Ssid, const char *Password){
+  ESP_LOGV(I3_WIFI_TAG, "i3WifiInit(Ssid: '%s', Password: '%s')", Ssid, Password);
+
   i3WifiCheckRequirement();
   ESP_LOGI(I3_WIFI_TAG, "Connecting...");
 
@@ -85,8 +90,8 @@ void i3WifiInit(const char *ssid, const char *password){
       }
   };
 
-  if (ssid != NULL)     strcpy ((char*)wifi_config.sta.ssid, ssid);
-  if (password != NULL) strcpy ((char*)wifi_config.sta.password, password);
+  if (Ssid != NULL)     strcpy ((char*)wifi_config.sta.ssid, Ssid);
+  if (Password != NULL) strcpy ((char*)wifi_config.sta.password, Password);
   esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
 
   esp_wifi_start();

@@ -9,6 +9,8 @@ httpd_handle_t _server = NULL;
  * Call espAddPath() to serve some html page
  */
 httpd_handle_t* i3HttpdStart(){
+  ESP_LOGV(I3_HTTPD_TAG, "i3HttpdStart()");
+
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
   ESP_LOGI(I3_HTTPD_TAG, "Starting web server on port %d...", config.server_port);
@@ -26,18 +28,20 @@ httpd_handle_t* i3HttpdStart(){
  * Process http GET requests
  * Send the html source according to the path
  */
-esp_err_t _getHandler(httpd_req_t *req) {
-  ESP_LOGI(I3_HTTPD_TAG, "GET %s", req->uri);
+esp_err_t _getHandler(httpd_req_t *Req) {
+  ESP_LOGV(I3_HTTPD_TAG, "_getHandler()");
 
-  httpd_resp_set_type(req, "text/html");
+  ESP_LOGI(I3_HTTPD_TAG, "GET %s", Req->uri);
+
+  httpd_resp_set_type(Req, "text/html");
   GetMap::iterator it = _getMap.begin();
   while (it != _getMap.end()){
-    if (strcmp(it->first, req->uri) == 0){
-      return httpd_resp_send(req, it->second().c_str(), HTTPD_RESP_USE_STRLEN);
+    if (strcmp(it->first, Req->uri) == 0){
+      return httpd_resp_send(Req, it->second().c_str(), HTTPD_RESP_USE_STRLEN);
     }
     it++;
   }
-  return httpd_resp_send(req, "404 - Not found", HTTPD_RESP_USE_STRLEN); //Code never reached (esp_http_server owns his 404 handler)
+  return httpd_resp_send(Req, "404 - Not found", HTTPD_RESP_USE_STRLEN); //Code never reached (esp_http_server owns his 404 handler)
 }
 
 /**
@@ -45,22 +49,24 @@ esp_err_t _getHandler(httpd_req_t *req) {
  * Process http POST requests
  * Send the html source according to the path
  */
-esp_err_t _postHandler(httpd_req_t *req){
-  ESP_LOGI(I3_HTTPD_TAG, "POST %s", req->uri);
-  ESP_LOGD(I3_HTTPD_TAG, "Content length %d", req->content_len);
+esp_err_t _postHandler(httpd_req_t *Req){
+  ESP_LOGV(I3_HTTPD_TAG, "_postHandler()");
+
+  ESP_LOGI(I3_HTTPD_TAG, "POST %s", Req->uri);
+  ESP_LOGD(I3_HTTPD_TAG, "Content length %d", Req->content_len);
 
   char* content = (char *)calloc(255, sizeof(char));
-  int ret = httpd_req_recv(req, content, req->content_len);
+  int ret = httpd_req_recv(Req, content, Req->content_len);
   if (ret <= 0){
-    if (ret == HTTPD_SOCK_ERR_TIMEOUT) httpd_resp_send_408(req);
+    if (ret == HTTPD_SOCK_ERR_TIMEOUT) httpd_resp_send_408(Req);
     return ESP_FAIL;
   }
 
   PostMap::iterator it = _postMap.begin();
   while (it != _postMap.end()){
-    if (strcmp(it->first, req->uri) == 0){
+    if (strcmp(it->first, Req->uri) == 0){
       it->second(std::string(content));
-      httpd_resp_send(req, "OK", HTTPD_RESP_USE_STRLEN);
+      httpd_resp_send(Req, "OK", HTTPD_RESP_USE_STRLEN);
       return ESP_OK;
     }
     it++;
@@ -72,8 +78,10 @@ esp_err_t _postHandler(httpd_req_t *req){
  * Associate a html source to a path
  * E.g. "/" -> index.html
  */
-void i3HttpdAddGetEndpoint(const char* Path, GetCallBack getCallBack){
-  _getMap.insert(GetMap::value_type(Path, getCallBack));
+void i3HttpdAddGetEndpoint(const char* Path, GetCallBack GetCallBack){
+  ESP_LOGV(I3_HTTPD_TAG, "i3HttpdAddGetEndpoint(Path: '%s')", Path);
+
+  _getMap.insert(GetMap::value_type(Path, GetCallBack));
   httpd_uri_t index_uri = {
     .uri       = Path,
     .method    = HTTP_GET,
@@ -92,8 +100,10 @@ void i3HttpdAddGetEndpoint(const char* Path, GetCallBack getCallBack){
  * Associate a callback to a path
  * E.g. "/action" -> processAction(const char* data)
  */
-void i3HttpdAddPostEndpoint(const char* Path, PostCallBack postCallBack){
-  _postMap.insert(PostMap::value_type(Path, postCallBack));
+void i3HttpdAddPostEndpoint(const char* Path, PostCallBack PostCallBack){
+  ESP_LOGV(I3_HTTPD_TAG, "i3HttpdAddPostEndpoint(Path: '%s')", Path);
+
+  _postMap.insert(PostMap::value_type(Path, PostCallBack));
 
   httpd_uri_t index_uri = {
     .uri       = Path,

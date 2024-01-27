@@ -8,30 +8,32 @@
 /**
  * Handler
  */
-esp_err_t i3HttpEventHandler(esp_http_client_event_t *evt){
+esp_err_t i3HttpEventHandler(esp_http_client_event_t *Evt){
+  ESP_LOGV(I3_HTTP_TAG, "i3HttpEventHandler()");
+
   static int totalLen = 0;
   int len = 0;
 
-  switch(evt->event_id) {
+  switch(Evt->event_id) {
     case HTTP_EVENT_ERROR:
       ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_ERROR");
       break;
     case HTTP_EVENT_ON_CONNECTED:
       ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_ON_CONNECTED");
       totalLen = 0;
-      memset(evt->user_data, 0, I3_HTTP_MAX_LENGTH);
+      memset(Evt->user_data, 0, I3_HTTP_MAX_LENGTH);
       break;
     case HTTP_EVENT_HEADER_SENT:
       ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_HEADER_SENT");
       break;
     case HTTP_EVENT_ON_HEADER:
-      ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
+      ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", Evt->header_key, Evt->header_value);
       break;
     case HTTP_EVENT_ON_DATA:
-      ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+      ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", Evt->data_len);
       //-1 to keep at least one trailing zero
-      len = (totalLen + evt->data_len) > (I3_HTTP_MAX_LENGTH-1) ? (I3_HTTP_MAX_LENGTH-1) - totalLen : evt->data_len;
-      memcpy(evt->user_data + totalLen, evt->data, len);
+      len = (totalLen + Evt->data_len) > (I3_HTTP_MAX_LENGTH-1) ? (I3_HTTP_MAX_LENGTH-1) - totalLen : Evt->data_len;
+      memcpy(Evt->user_data + totalLen, Evt->data, len);
       totalLen += len;
       break;
     case HTTP_EVENT_ON_FINISH:
@@ -44,24 +46,51 @@ esp_err_t i3HttpEventHandler(esp_http_client_event_t *evt){
       ESP_LOGV(I3_HTTP_TAG, "HTTP_EVENT_REDIRECT");
       break;
     default:
-      ESP_LOGV(I3_HTTP_TAG, "i3HttpEventHandler(event: %d)", evt->event_id);
+      ESP_LOGV(I3_HTTP_TAG, "i3HttpEventHandler(event: %d)", Evt->event_id);
   }
   return ESP_OK;
 }
 
+/**
+ * Url: http://worldtimeapi.org/api/timezone/Europe/Paris
+ *          ^
+ *          found
+ *
+ * urlNew: worldtimeapi.org/api/timezone/Europe/Paris
+ *                         ^
+ *                         found2
+ */
+UrlPart* i3Extract(const char *Url){
+  ESP_LOGV(I3_HTTP_TAG, "I3Http::i3Extract(Url: '%s')", Url);
+
+  UrlPart* urlPart = new UrlPart();
+
+  string url = string(Url);
+
+  size_t found = url.find_first_of(":");
+  urlPart->protocol = url.substr(0, found);
+
+  string urlNew = url.substr(found+3);
+  size_t found2 = urlNew.find_first_of("/");
+
+  urlPart->host = urlNew.substr(0, found2);
+  urlPart->path = urlNew.substr(found2);
+  return urlPart;
+}
 
 /**
  * @return status code
  */
-int I3Http::get(const char* url){
-  ESP_LOGV(I3_HTTP_TAG, "I3Http::get(%s)", url);
+int I3Http::get(const char* Url){
+  ESP_LOGV(I3_HTTP_TAG, "I3Http::get(Url: '%s')", Url);
 
+  UrlPart* urlPart = this->i3Extract(Url);
   this->code = 0;
   this->length = 0;
 
   esp_http_client_config_t config = {
-    .host          = "worldtimeapi.org",
-    .path          = "/api/timezone/Europe/Paris",
+    .host          = urlPart->host.c_str(),
+    .path          = urlPart->path.c_str(),
     .query         = "esp", //?
     .event_handler = i3HttpEventHandler,
     .user_data     = this->body,

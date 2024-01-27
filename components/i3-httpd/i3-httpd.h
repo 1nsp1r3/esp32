@@ -24,7 +24,7 @@ typedef std::map<const char*, GetCallBack> GetMap;
 typedef std::map<const char*, PostCallBack> PostMap;
 
 httpd_handle_t* i3HttpdStart();
-void i3HttpdAddGetEndpoint(const char* Path, GetCallBack getCallBack);
-void i3HttpdAddPostEndpoint(const char* Path, PostCallBack postCallBack);
+void i3HttpdAddGetEndpoint(const char* Path, GetCallBack GetCallBack);
+void i3HttpdAddPostEndpoint(const char* Path, PostCallBack PostCallBack);
 
 #endif
