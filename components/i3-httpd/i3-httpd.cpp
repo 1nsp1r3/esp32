@@ -29,15 +29,17 @@ httpd_handle_t* i3HttpdStart(){
  * Send the html source according to the path
  */
 esp_err_t _getHandler(httpd_req_t *Req) {
-  ESP_LOGV(I3_HTTPD_TAG, "_getHandler()");
+  GetReponse* getResponse;
 
+  ESP_LOGV(I3_HTTPD_TAG, "_getHandler()");
   ESP_LOGI(I3_HTTPD_TAG, "GET %s", Req->uri);
 
-  httpd_resp_set_type(Req, "text/html");
   GetMap::iterator it = _getMap.begin();
   while (it != _getMap.end()){
     if (strcmp(it->first, Req->uri) == 0){
-      return httpd_resp_send(Req, it->second(), HTTPD_RESP_USE_STRLEN);
+      getResponse = it->second();
+      httpd_resp_set_type(Req, getResponse->type);
+      return httpd_resp_send(Req, getResponse->content, getResponse->contentLength); //HTTPD_RESP_USE_STRLEN
     }
     it++;
   }

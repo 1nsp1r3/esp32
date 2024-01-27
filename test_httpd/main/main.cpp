@@ -8,9 +8,13 @@ string videoMode = "VGA";
 
 string indexResponse; //Must be a global var (at least a local static var)
 
-const char* getIndex(){
+GetReponse* getResponse = new GetReponse();
+
+GetReponse* getIndex(){
   indexResponse = i3StringReplace(index_html, "{videoMode}", videoMode);
-  return indexResponse.c_str();
+  getResponse->content = indexResponse.c_str();
+  getResponse->contentLength = indexResponse.length();
+  return getResponse;
 }
 
 void postAction(const char* data){
@@ -25,12 +29,13 @@ extern "C" void app_main(){
   esp_log_level_set(I3_HTTPD_TAG , ESP_LOG_VERBOSE);
   //esp_log_level_set(I3_STRING_TAG, ESP_LOG_VERBOSE);
   esp_log_level_set(TAG          , ESP_LOG_VERBOSE);
-  
+
   i3WifiInit();
 
   i3HttpdStart();
   i3HttpdAddGetEndpoint("/"       , getIndex);
   i3HttpdAddPostEndpoint("/action", postAction);
 
+  strcpy(getResponse->type, "text/html");
   ESP_LOGI(TAG, "Done");
 }
