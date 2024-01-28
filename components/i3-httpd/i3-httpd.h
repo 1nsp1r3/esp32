@@ -32,9 +32,23 @@ typedef GetReponse* (*GetCallBack)();
 typedef std::map<const char*, GetCallBack> GetMap;
 typedef std::map<const char*, PostCallBack> PostMap;
 
-httpd_handle_t* i3HttpdStart();
-void i3HttpdAddGetEndpoint(const char* Path, GetCallBack GetCallBack);
-void i3HttpdAddStreamEndpoint(const char* Path, GetCallBack GetCallBack);
-void i3HttpdAddPostEndpoint(const char* Path, PostCallBack PostCallBack);
+
+class I3Httpd {
+  protected:
+    httpd_handle_t server = NULL;
+
+  public:
+    static I3Httpd* instance;
+    GetMap getMap;
+    PostMap postMap;
+
+    I3Httpd(){ I3Httpd::instance = this; }
+    void start();
+    void addGetEndpoint(const char* Path, GetCallBack GetCallBack);
+    void addStreamEndpoint(const char* Path, GetCallBack GetCallBack);
+    void addPostEndpoint(const char* Path, PostCallBack PostCallBack);
+    GetMap::iterator findGetEndpoint(const char *uri);
+    bool sendPart(httpd_req_t *Req, GetReponse* GetResponse);
+};
 
 #endif

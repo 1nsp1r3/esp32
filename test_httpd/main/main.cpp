@@ -32,9 +32,10 @@ extern "C" void app_main(){
 
   i3WifiInit();
 
-  i3HttpdStart();
-  i3HttpdAddGetEndpoint("/"       , getIndex);
-  i3HttpdAddPostEndpoint("/action", postAction);
+  I3Httpd* i3Httpd = new I3Httpd();
+  i3Httpd->start();
+  i3Httpd->addGetEndpoint("/"       , getIndex);
+  i3Httpd->addPostEndpoint("/action", postAction);
 
   strcpy(getResponse->contentType, "text/html");
   ESP_LOGI(TAG, "Done");
