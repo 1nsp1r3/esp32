@@ -7,14 +7,14 @@
 #include <esp_log.h>
 #include <esp_http_server.h>
 
-#define MULTIPART_BOUNDARY "123456789000000000000987654321"
-#define MULTIPART "multipart/x-mixed-replace;boundary=" MULTIPART_BOUNDARY
-
-class GetReponse {
+/**
+ *
+ */
+class I3HttpdContent {
   public:
-    char contentType[70]; // "text/html" ou "image/jpeg"
-    const char *content;
-    size_t contentLength;
+    char type[20]; // "text/html" ou "image/jpeg"
+    size_t length;
+    const char* data;
 };
 
 /**
@@ -27,11 +27,14 @@ typedef void (*PostCallBack)(const char*);
  * Permet de rattacher une callback de traitement à un endpoint GET /path
  * La callback doit simplement fournir du texte (html) en sortie
  */
-typedef GetReponse* (*GetCallBack)();
+typedef I3HttpdContent* (*GetCallBack)();
 
 typedef std::map<const char*, GetCallBack> GetMap;
 typedef std::map<const char*, PostCallBack> PostMap;
 
+
+esp_err_t _getHandler(httpd_req_t* Req);
+esp_err_t _postHandler(httpd_req_t* Req);
 
 class I3Httpd {
   protected:
@@ -45,10 +48,9 @@ class I3Httpd {
     I3Httpd(){ I3Httpd::instance = this; }
     void start();
     void addGetEndpoint(const char* Path, GetCallBack GetCallBack);
-    void addStreamEndpoint(const char* Path, GetCallBack GetCallBack);
     void addPostEndpoint(const char* Path, PostCallBack PostCallBack);
-    GetMap::iterator findGetEndpoint(const char *uri);
-    bool sendPart(httpd_req_t *Req, GetReponse* GetResponse);
+    GetMap::iterator findGetFromMap(const char* uri);
+    PostMap::iterator findPostFromMap(const char* uri);
 };
 
 #endif

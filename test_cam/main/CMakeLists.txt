@@ -3,6 +3,6 @@ idf_component_register(
   INCLUDE_DIRS .
   REQUIRES
     i3-wifi
-    i3-httpd
+    i3-stream-server
     i3-cam
 )

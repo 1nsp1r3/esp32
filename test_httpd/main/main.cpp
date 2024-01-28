@@ -8,13 +8,13 @@ string videoMode = "VGA";
 
 string indexResponse; //Must be a global var (at least a local static var)
 
-GetReponse* getResponse = new GetReponse();
+I3HttpdContent* content = new I3HttpdContent();
 
-GetReponse* getIndex(){
+I3HttpdContent* getIndex(){
   indexResponse = i3StringReplace(index_html, "{videoMode}", videoMode);
-  getResponse->content = indexResponse.c_str();
-  getResponse->contentLength = indexResponse.length();
-  return getResponse;
+  content->data = indexResponse.c_str();
+  content->length = indexResponse.length();
+  return content;
 }
 
 void postAction(const char* data){
@@ -37,6 +37,6 @@ extern "C" void app_main(){
   i3Httpd->addGetEndpoint("/"       , getIndex);
   i3Httpd->addPostEndpoint("/action", postAction);
 
-  strcpy(getResponse->contentType, "text/html");
+  strcpy(content->type, "text/html");
   ESP_LOGI(TAG, "Done");
 }
