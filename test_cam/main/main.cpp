@@ -35,8 +35,9 @@ extern "C" void app_main(){
   i3CamInit();
   i3HttpdStart();
   i3HttpdAddGetEndpoint("/", getScreenshot);
+  i3HttpdAddStreamEndpoint("/stream", getScreenshot);
   
-  strcpy(getResponse->type, "image/jpeg");
-
+  strcpy(getResponse->contentType, "image/jpeg");
+  
   ESP_LOGI(TAG, "Done");
 }

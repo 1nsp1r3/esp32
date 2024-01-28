@@ -36,6 +36,6 @@ extern "C" void app_main(){
   i3HttpdAddGetEndpoint("/"       , getIndex);
   i3HttpdAddPostEndpoint("/action", postAction);
 
-  strcpy(getResponse->type, "text/html");
+  strcpy(getResponse->contentType, "text/html");
   ESP_LOGI(TAG, "Done");
 }

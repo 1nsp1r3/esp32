@@ -7,9 +7,12 @@
 #include <esp_log.h>
 #include <esp_http_server.h>
 
+#define MULTIPART_BOUNDARY "123456789000000000000987654321"
+#define MULTIPART "multipart/x-mixed-replace;boundary=" MULTIPART_BOUNDARY
+
 class GetReponse {
   public:
-    char type[20]; // "text/html" ou "image/jpeg"
+    char contentType[70]; // "text/html" ou "image/jpeg"
     const char *content;
     size_t contentLength;
 };
@@ -31,6 +34,7 @@ typedef std::map<const char*, PostCallBack> PostMap;
 
 httpd_handle_t* i3HttpdStart();
 void i3HttpdAddGetEndpoint(const char* Path, GetCallBack GetCallBack);
+void i3HttpdAddStreamEndpoint(const char* Path, GetCallBack GetCallBack);
 void i3HttpdAddPostEndpoint(const char* Path, PostCallBack PostCallBack);
 
 #endif
