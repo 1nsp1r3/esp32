@@ -6,18 +6,18 @@
 bool I3StreamServer::sendPart(httpd_req_t* Req, I3HttpdContent* Content){
   ESP_LOGV(I3_STREAM_SERVER_TAG, "I3StreamServer::sendPart()");
   esp_err_t ret;
-  char* buffer[64];
+  char buffer[64];
   const char* boundary = "\r\n--" MULTIPART_BOUNDARY "\r\n";
 
   ret = httpd_resp_send_chunk(Req, boundary, strlen(boundary));
   if (ret != ESP_OK) return false;
 
   size_t length = snprintf(
-    (char*)buffer, 64, "Content-Type: %s\r\nContent-Length: %u\r\n\r\n",
+    buffer, 64, "Content-Type: %s\r\nContent-Length: %u\r\n\r\n",
     Content->type,
     Content->length
   );
-  ret = httpd_resp_send_chunk(Req, (const char*)buffer, length);
+  ret = httpd_resp_send_chunk(Req, buffer, length);
   if (ret != ESP_OK) return false;
 
   ret = httpd_resp_send_chunk(Req, Content->data, Content->length);

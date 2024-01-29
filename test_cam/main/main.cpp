@@ -18,7 +18,7 @@ void screenshot(){
 }
 
 I3HttpdContent* getScreenshot(){
-  screenshot();  
+  screenshot();
   content->data = (const char *)camera_fb->buf;
   content->length = camera_fb->len;
   return content;
@@ -39,8 +39,8 @@ extern "C" void app_main(){
   i3StreamServer->start();
   i3StreamServer->addGetEndpoint("/"         , getScreenshot);
   i3StreamServer->addStreamEndpoint("/stream", getScreenshot);
-  
+
   strcpy(content->type, "image/jpeg");
-  
+
   ESP_LOGI(TAG, "Done");
 }
