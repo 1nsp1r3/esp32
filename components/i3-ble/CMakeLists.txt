@@ -1,6 +1,7 @@
 idf_component_register(
-  SRCS main.cpp
+  SRCS i3-ble.cpp
   INCLUDE_DIRS .
   REQUIRES
-    i3-ble    
+    nvs_flash
+    bt
 )

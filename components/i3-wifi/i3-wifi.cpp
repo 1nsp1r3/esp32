@@ -9,6 +9,15 @@
 bool connected = false;
 bool ipReceived = false;
 
+void i3WifiInitNvs(){
+  ESP_LOGV(I3_WIFI_TAG, "i3WifiInitNvs()");
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND){
+    nvs_flash_erase();
+    nvs_flash_init();
+  }
+}
+
 /**
  * Handler
  */
@@ -41,13 +50,7 @@ void i3WifiCheckRequirement(){
   ESP_LOGV(I3_WIFI_TAG, "i3WifiCheckRequirement()");
   ESP_LOGI(I3_WIFI_TAG, "Check requirements...");
 
-  //NVS is used to store PHY calibration data
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND){
-    nvs_flash_erase();
-    nvs_flash_init();
-  }
-
+  i3WifiInitNvs(); //NVS is used to store PHY calibration data
   esp_netif_init(); //Initialize TCP/IP network interface (required for Wi-Fi)
   esp_event_loop_create_default(); //Initialize the event loop
   esp_netif_create_default_wifi_sta();
