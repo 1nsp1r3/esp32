@@ -10,7 +10,7 @@ static adc_oneshot_unit_handle_t adcHandle;
 static int i3AdcValue;
 
 void i3AdcInit(adc_unit_t Unit, adc_channel_t Channel);
-int i3AdcRead(adc_channel_t Channel);
-int i3AdcGetPercent(int AdcValue, int Min, int Max);
+unsigned short i3AdcRead(adc_channel_t Channel);
+char i3AdcGetPercent(unsigned short AdcValue, unsigned short Min, unsigned short Max);
 
 #endif

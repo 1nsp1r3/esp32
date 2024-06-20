@@ -45,9 +45,7 @@ void i3BleGapHandler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param
       break;
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
       ESP_LOGV(I3_BLE_TAG, "<event> ESP_GAP_BLE_ADV_START_COMPLETE_EVT");
-      if(param->adv_start_cmpl.status == ESP_BT_STATUS_SUCCESS){
-        ESP_LOGI(I3_BLE_TAG, "Advertising started");
-      }else{
+      if(param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS){
         ESP_LOGE(I3_BLE_TAG, "Unable to start advertising process");
       }
       break;
@@ -80,5 +78,13 @@ void i3BleStartAdvertising(ushort frequency, uint8_t* rawData, uint8_t size){
   gapParams.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
 
   esp_ble_gap_register_callback(&i3BleGapHandler);
+  esp_ble_gap_config_adv_data_raw(rawData, size);
+}
+
+/**
+ * Update advertising raw data (GAP)
+ */
+void i3BleUpdateAdvertising(uint8_t* rawData, uint8_t size){
+  ESP_LOGV(I3_BLE_TAG, "i3BleUpdateAdvertising()");
   esp_ble_gap_config_adv_data_raw(rawData, size);
 }

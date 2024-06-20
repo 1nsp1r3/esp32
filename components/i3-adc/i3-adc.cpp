@@ -18,11 +18,11 @@ void i3AdcInit(adc_unit_t Unit, adc_channel_t Channel){
   if (err != ESP_OK) ESP_LOGE(I3_ADC_TAG, "adc_oneshot_config_channel() failed");
 }
 
-int i3AdcRead(adc_channel_t Channel){
+unsigned short i3AdcRead(adc_channel_t Channel){
   ESP_LOGV(I3_ADC_TAG, "i3AdcRead()");
   esp_err_t err = adc_oneshot_read(adcHandle, Channel, &i3AdcValue);
   if (err != ESP_OK) ESP_LOGE(I3_ADC_TAG, "adc_oneshot_read() failed");
-  return i3AdcValue;
+  return (unsigned short)i3AdcValue;
 }
 
 /**
@@ -38,17 +38,17 @@ int i3AdcRead(adc_channel_t Channel){
  * 3.00V       3860
  * 3.10-3.30V  4095
  */
-int i3AdcGetPercent(int AdcValue, int Min, int Max) {
+char i3AdcGetPercent(unsigned short AdcValue, unsigned short Min, unsigned short Max) {
   ESP_LOGV(I3_ADC_TAG, "i3AdcGetPercent(AdcValue: %d, Min: %d, Max: %d)", AdcValue, Min, Max);
 
   //Check bounds
-  int input = (AdcValue > Max) ? Max : AdcValue;
+  unsigned short input = (AdcValue > Max) ? Max : AdcValue;
   input = (input < Min) ? Min : input;
 
   //Algo
-  int diff = Max - Min; //3120mV - 2270mV = 850mV
-  int normalize = input - Min; //E.g. 2695mV - 2270mV = 425mV
+  unsigned short diff = Max - Min; //3120mV - 2270mV = 850mV
+  unsigned short normalize = input - Min; //E.g. 2695mV - 2270mV = 425mV
 
-  int percent = (normalize*10) / (diff/10); //425mV / 850mV = 0.5 but with integer values : 4250 / 85 = 50
-  return percent;
+  unsigned short percent = (normalize*10) / (diff/10); //425mV / 850mV = 0.5 but with integer values : 4250 / 85 = 50
+  return (char)percent;
 }

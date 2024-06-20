@@ -5,8 +5,8 @@
 
 #define TAG "I3-MAIN"
 
-int value;
-int battery;
+unsigned short value;
+char battery;
 
 /**
  *
