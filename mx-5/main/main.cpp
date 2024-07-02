@@ -39,7 +39,6 @@ extern "C" void app_main(){
 
     //copie 2 octets de value à la position 12 (AD3)
     i3CopyWord(adv_raw_data, 12, &value);
-    //memcpy(adv_raw_data+sizeof(uint8_t)*12, &value, sizeof(uint8_t)*2);   
     i3BleUpdateAdvertising(adv_raw_data, 26);
 
     vTaskDelay (1000 / portTICK_PERIOD_MS);
