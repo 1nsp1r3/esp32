@@ -4,6 +4,7 @@
 #include <i3-ble.h>
 #include <i3-adc.h>
 #include <i3-mem.h>
+#include <i3-linear.h>
 
 #define TAG "I3-MAIN"
 
@@ -31,6 +32,11 @@ extern "C" void app_main(){
   i3BleInit();
   i3BleStartAdvertising(1000, adv_raw_data, 26);
 
+  float X = i3LinearGetX(0, 2, 5, 5, 3);
+  float Y = i3LinearGetY(0, 2, 3, 3, 1);
+
+  ESP_LOGI(TAG, "X: %f", X);
+  ESP_LOGI(TAG, "Y: %f", Y);
 
   for(;;){
     value = i3AdcRead(ADC_CHANNEL_5);
