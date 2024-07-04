@@ -5,5 +5,5 @@ idf_component_register(
     i3-mem
     i3-adc
     i3-ble
-    i3-linear
+    i3-table
 )
