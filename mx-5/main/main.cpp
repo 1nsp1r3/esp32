@@ -4,7 +4,7 @@
 #include <i3-ble.h>
 #include <i3-adc.h>
 #include <i3-mem.h>
-#include <i3-table.h>
+#include <i3-queue.h>
 
 #define TAG "I3-MAIN"
 
@@ -18,16 +18,7 @@ uint8_t adv_raw_data[20] = {
 unsigned short value;
 char battery;
 
-int table[][2] = {
-    {0, 140},
-    {500, 110},
-    {1000, 90},
-    {1500, 70},
-    {2000, 50},
-    {2500, 30},
-    {3000, 10},
-    {4000, -10},
-};
+
 
 /**
  * MAIN
@@ -43,14 +34,13 @@ extern "C" void app_main(){
   i3BleInit();
   i3BleStartAdvertising(1000, adv_raw_data, 26);
 
-  float result = i3TableGetValue(table, 8, 2750);
-
-  ESP_LOGI(TAG, "Result: %f", result);
+  I3Queue* a = new I3Queue(10);
 
   for(;;){
     value = i3AdcRead(ADC_CHANNEL_5);
+    a->push(value);
     battery = i3AdcGetPercent(value, 2770, 4000);
-    ESP_LOGI(TAG, "Result: %d (%d)", value, battery);
+    ESP_LOGI(TAG, "Result: %d (%d) average: %.2f", value, battery, a->average());   
 
     //copie 2 octets de value à la position 12 (AD3)
     i3CopyWord(adv_raw_data, 12, &value);
