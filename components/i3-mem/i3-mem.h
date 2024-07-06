@@ -6,6 +6,7 @@
 #include <string.h>
 #include <esp_log.h>
 
-void i3CopyWord(unsigned char* destination, unsigned short position, unsigned short* data);
+void i3CopyShort(unsigned char* Destination, unsigned short Position, short* Value);
+void i3CopyFloat(unsigned char* Destination, unsigned short Position, float* Value);
 
 #endif

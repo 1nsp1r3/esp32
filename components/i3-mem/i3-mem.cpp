@@ -1,10 +1,17 @@
 #include "i3-mem.h"
 
 /**
- * Copie 2 octets quelque part en mémoire
+ * Copie 2 octets
  */
-void i3CopyWord(unsigned char* destination, unsigned short position, unsigned short* data){
-    ESP_LOGV(I3_MEM_TAG, "i3CopyWord()");
-    memcpy(destination+sizeof(char)*position, data, sizeof(short));
+void i3CopyShort(unsigned char* Destination, unsigned short Position, short* Value){
+    ESP_LOGV(I3_MEM_TAG, "i3CopyShort()");
+    memcpy(Destination+sizeof(char)*Position, Value, sizeof(short));
 }
 
+/**
+ * Copie 4 octets
+ */
+void i3CopyFloat(unsigned char* Destination, unsigned short Position, float* Value){
+    ESP_LOGV(I3_MEM_TAG, "i3CopyFloat()");
+    memcpy(Destination+sizeof(char)*Position, Value, sizeof(float));
+}
