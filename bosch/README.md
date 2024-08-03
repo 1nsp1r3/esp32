@@ -1,3 +1,6 @@
+# TODO
+- Donner un nom spécifique à ma MX5 pour ne pas me connecter malencontrueusement à une autre
+
 # Prérequis
 - Visual Studio Code
 - ESP-IDF v5.1.2
@@ -106,4 +109,50 @@ Example with 4.5V for 145 PSI
 Vout = (Vin x R2) / (R1 + R2)
      = (4.5 x 3300 ) / (1200 + 3300)
      = 3.3V (145 PSI)
+```
+
+# Espruino simulator
+```js
+let rawData = [
+  0x02,0x01,0x06,                //AD1: Flags
+  0x04,0x09,0x4D,0x58,0x35,      //AD2: Complete Local Name "MX5"
+  0x05,0x16,0x09,0x18,0x00,0x00, //AD3: Service Data 16-bit UUID 1809 (Health Thermometer Service)
+  0x05,0x16,0x6D,0x2A,0x00,0x00, //AD4: Service Data 16-bit UUID 2A6D (Pressure characteristic)
+]
+
+const random = (min, max) => min + Math.floor(Math.random() * (max-min))
+
+const longToByteArray = function(short){
+    let ret = [0, 0]
+
+    for (let i=0;i<2;i++){
+        let byte = short & 0xff
+        ret[i] = byte
+        short = (short - byte) / 256
+    }
+    return ret
+}
+
+function loop(){
+  let temperature = random(2000, 3000)
+  let pressure = random(4500, 7500)
+    
+  let tmp = longToByteArray(temperature)
+  rawData[12] = tmp[0]
+  rawData[13] = tmp[1]
+  
+  tmp = longToByteArray(pressure)
+  rawData[18] = tmp[0]
+  rawData[19] = tmp[1]
+
+  NRF.setAdvertising(
+    rawData, {
+      name: "MX5",
+      interval: 1000, //ms
+    }
+  )
+}
+
+setInterval(loop, 1000)
+loop()
 ```
