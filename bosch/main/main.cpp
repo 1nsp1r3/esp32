@@ -26,28 +26,28 @@ uint8_t adv_raw_data[GAP_SIZE] = {
 #endif
 
 /**
- * Bosch temperature sensor
+ * Bosch temperature sensor avec R1=1788 Ohms
  */
 #define TABLE_SIZE 19
 int table[TABLE_SIZE][2] = {
-  { 147, 140}, //0
-  { 185, 130},
-  { 234, 120},
-  { 300, 110},
-  { 370, 100},
-  { 464,  90}, //5
-  { 600,  80},
-  { 776,  70},
-  { 988,  60},
-  {1258,  50},
-  {1592,  40}, //10
-  {1966,  30},
-  {2366,  20},
-  {2768,  10},
-  {3153,   0},
-  {3497, -10}, //15
-  {3818, -20},
-  {4084, -30},
+  { 144, 140}, //0
+  { 177, 130},
+  { 231, 120},
+  { 295, 110},
+  { 368, 100},
+  { 471,  90}, //5
+  { 615,  80},
+  { 780,  70},
+  { 987,  60},
+  {1263,  50},
+  {1605,  40}, //10
+  {1985,  30},
+  {2395,  20},
+  {2783,  10},
+  {3165,   0},
+  {3515, -10}, //15
+  {3860, -20},
+  {4090, -30},
   {4095, -40}, //18
 };
 
@@ -93,8 +93,8 @@ float getPressure(){
  */
 extern "C" void app_main(){
   //Log level
-  esp_log_level_set(TAG, ESP_LOG_VERBOSE);
-  esp_log_level_set(I3_BLE_TAG, ESP_LOG_INFO);
+  esp_log_level_set(TAG, ESP_LOG_NONE);
+  //esp_log_level_set(I3_BLE_TAG, ESP_LOG_INFO);
 
   ESP_LOGI(TAG, "Bonjour :-)");
   #ifdef WITH_QUEUE
