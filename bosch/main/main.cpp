@@ -26,28 +26,28 @@ uint8_t adv_raw_data[GAP_SIZE] = {
 #endif
 
 /**
- * Bosch temperature sensor avec R1=1788 Ohms
+ * Bosch temperature sensor avec R1=1774 Ohms
  */
 #define TABLE_SIZE 19
 int table[TABLE_SIZE][2] = {
-  { 144, 140}, //0
-  { 177, 130},
-  { 231, 120},
-  { 295, 110},
-  { 368, 100},
+  { 147, 140}, //0
+  { 183, 130},
+  { 233, 120},
+  { 291, 110},
+  { 363, 100},
   { 471,  90}, //5
-  { 615,  80},
-  { 780,  70},
-  { 987,  60},
-  {1263,  50},
-  {1605,  40}, //10
-  {1985,  30},
-  {2395,  20},
-  {2783,  10},
-  {3165,   0},
-  {3515, -10}, //15
-  {3860, -20},
-  {4090, -30},
+  { 605,  80},
+  { 771,  70},
+  { 989,  60},
+  {1268,  50},
+  {1594,  40}, //10
+  {1968,  30},
+  {2352,  20},
+  {2752,  10},
+  {3124,   0},
+  {3499, -10}, //15
+  {3820, -20},
+  {4095, -30},
   {4095, -40}, //18
 };
 
@@ -56,7 +56,7 @@ int table[TABLE_SIZE][2] = {
  */
 float getTemperature(){
     unsigned short adcValue = i3AdcRead(ADC_CHANNEL_5);
- 
+
     #ifdef WITH_QUEUE
       temperatureQueue->push(adcValue);
       float temperature = i3TableGetValue(table, TABLE_SIZE, (int)temperatureQueue->average());
@@ -93,7 +93,7 @@ float getPressure(){
  */
 extern "C" void app_main(){
   //Log level
-  esp_log_level_set(TAG, ESP_LOG_NONE);
+  esp_log_level_set(TAG, ESP_LOG_NONE); //ESP_LOG_VERBOSE
   //esp_log_level_set(I3_BLE_TAG, ESP_LOG_INFO);
 
   ESP_LOGI(TAG, "Bonjour :-)");
