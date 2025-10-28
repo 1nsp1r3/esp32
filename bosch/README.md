@@ -134,6 +134,8 @@ const longToByteArray = function(short){
 }
 
 function loop(){
+  g.clear()
+  
   let temperature = random(2000, 3000)
   let pressure = random(4500, 7500)
     
@@ -151,13 +153,38 @@ function loop(){
       interval: 1000, //ms
     }
   )
+  
+  g.setFontVector(10)
+  g.drawString(
+    `Temperature: ${temperature}`,
+    0, //X
+    0  //Y
+  )
+  g.drawString(
+    `Pressure: ${pressure}`,
+    0, //X
+    20  //Y
+  )
+  
+  g.drawString(
+    "Bosh simulator",
+    0, //X
+    40  //Y
+  )
+  g.drawString(
+    "(c) Inspir3 2024",
+    0, //X
+    50  //Y
+  )
+  
+  g.flip()
 }
 
 setInterval(loop, 1000)
 loop()
 ```
 
-# Temperature table when R1=1788 Ohms (Julien)
+# Temperature table when R1=1788 Ohms (Julien `24:58:7C:E1:F6:42`)
 ```c
 int table[TABLE_SIZE][2] = {
   { 144, 140}, //0
@@ -182,7 +209,7 @@ int table[TABLE_SIZE][2] = {
 };
 ```
 
-# Temperature table when R1=1774 Ohms (Régis)
+# Temperature table when R1=1774 Ohms (Régis `3C:84:27:CA:6E:4A`)
 ```c
 int table[TABLE_SIZE][2] = {
   { 147, 140}, //0
