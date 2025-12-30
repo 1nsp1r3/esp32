@@ -68,10 +68,10 @@ void i3BleInit(){
  * Advertising raw data (GAP)
  * @param frequency (ms)
  */
-void i3BleStartAdvertising(ushort frequency, uint8_t* rawData, uint8_t size){
+void i3BleStartAdvertising(uint16_t frequency, uint8_t* rawData, uint8_t size){
   ESP_LOGV(I3_BLE_TAG, "i3BleStartAdvertising()");
-  gapParams.adv_int_min       = (ushort)(frequency / 0.625);
-  gapParams.adv_int_max       = (ushort)(frequency / 0.625);
+  gapParams.adv_int_min       = (uint16_t)(frequency / 0.625);
+  gapParams.adv_int_max       = (uint16_t)(frequency / 0.625);
   gapParams.adv_type          = ADV_TYPE_NONCONN_IND;
   gapParams.own_addr_type     = BLE_ADDR_TYPE_PUBLIC;
   gapParams.channel_map       = ADV_CHNL_ALL;

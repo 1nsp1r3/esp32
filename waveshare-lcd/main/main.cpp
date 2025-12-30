@@ -3,11 +3,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-//#include "driver/gpio.h"
-
 #include <i3-lcd.h>
 
 #define TAG "I3-MAIN"
+
+#define BALL_SIZE 50
 
 /**
  * MAIN
@@ -18,24 +18,31 @@ extern "C" void app_main(){
 
   ESP_LOGI(TAG, "Bonjour :-)");
 
+  uint16_t *buffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
+  if (buffer != NULL) ESP_LOGI(TAG, "Initializing back buffer... OK");
+
   i3LcdInit();
 
-  uint16_t *buffer = (uint16_t*)heap_caps_malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), MALLOC_CAP_DMA);
-  memset(buffer, 0x0000, LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
-
-  /*
-  const uint16_t white = 0x00FF; // Couleur blanche en RGB565
-  for (int y = 50; y < 55; y++) {
-      for (int x = 5; x < LCD_WIDTH-5; x++) {
-          buffer[y * LCD_WIDTH + x] = white; // Dessine un rectangle blanc comme pseudo-texte
-      }
-  }*/
-
-  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, 10, 10, buffer);
+  int x = 120;
+  int incX = 1;
+  int incY = 1;
+  int y = 160;
 
   for(;;){
-    vTaskDelay (1000 / portTICK_PERIOD_MS);
+    i3LcdClear(buffer);
+    i3LcdRectangle(buffer, x, y, x+BALL_SIZE-1, y+BALL_SIZE-1, LCD_COLOR_GREEN);
+    //i3LcdSetPixel(buffer, x, y, LCD_COLOR_WHITE);
+    i3LcdSwap(buffer);
 
-    ESP_LOGI(TAG, "Normalement, un dessin est apparu");
+    x+=incX;
+    y+=incY;
+
+    if (x >= LCD_WIDTH-BALL_SIZE) incX = -1;
+    if (x <= 0) incX = 1;
+    if (y >= LCD_HEIGHT-BALL_SIZE) incY = -1;
+    if (y <= 0) incY = 1;
+
+    //vTaskDelay (1000 / portTICK_PERIOD_MS);
+    //ESP_LOGI(TAG, "Normalement, un dessin est apparu");
   }
 }

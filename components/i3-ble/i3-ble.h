@@ -12,7 +12,7 @@
 static esp_ble_adv_params_t gapParams;
 
 void i3BleInit();
-void i3BleStartAdvertising(ushort frequency, uint8_t* rawData, uint8_t size);
+void i3BleStartAdvertising(uint16_t  frequency, uint8_t* rawData, uint8_t size);
 void i3BleUpdateAdvertising(uint8_t* rawData, uint8_t size);
 
 #endif
