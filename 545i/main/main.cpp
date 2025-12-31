@@ -30,8 +30,7 @@ extern "C" void app_main(){
 
   for(;;){
     i3LcdClear(buffer);
-    i3LcdRectangle(buffer, x, y, x+BALL_SIZE-1, y+BALL_SIZE-1, LCD_COLOR_GREEN);
-    //i3LcdSetPixel(buffer, x, y, LCD_COLOR_WHITE);
+    i3LcdRectangle(buffer, x, y, x+BALL_SIZE-1, y+BALL_SIZE-1, LCD_COLOR_BLUE);
     i3LcdSwap(buffer);
 
     x+=incX;
@@ -42,7 +41,6 @@ extern "C" void app_main(){
     if (y >= LCD_HEIGHT-BALL_SIZE) incY = -1;
     if (y <= 0) incY = 1;
 
-    //vTaskDelay (1000 / portTICK_PERIOD_MS);
-    //ESP_LOGI(TAG, "Normalement, un dessin est apparu");
+    //vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }

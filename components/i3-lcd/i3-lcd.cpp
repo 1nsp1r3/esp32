@@ -84,3 +84,35 @@ void i3LcdRectangle(uint16_t *buffer, int x1, int y1, int x2, int y2, uint16_t c
 void i3LcdSwap(uint16_t *buffer){
   esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, buffer);  
 }
+
+/**
+ * Draw a single digit (0-9) at the specified position
+ */
+void i3LcdDrawDigit(uint16_t *buffer, int x, int y, uint8_t digit, uint16_t color){
+  if (digit > 9) return; // Only digits 0-9 are supported
+  
+  for (uint8_t col=0;col<5;col++){
+    for (uint8_t row=0;row<7;row++){      
+      uint8_t bit = font_digits[digit][col];
+      if (bit & (1 << row)){ // Check if the pixel should be drawn (bit is set in font data)
+        i3LcdSetPixel(buffer, x+col, y+row, color);
+      }
+    }
+  }
+}
+
+/**
+ * Draw a number at the specified position
+ */
+void i3LcdDrawNumber(uint16_t *buffer, int x, int y, int number, uint16_t color){
+  char numStr[10]; //4294967295 (32bits unsigned)
+  sprintf(numStr, "%d", number);
+  
+  int startX = x;
+  for (int i=0;numStr[i]!='\0';i++){
+    if (numStr[i] >= '0' && numStr[i] <= '9'){
+      i3LcdDrawDigit(buffer, startX, y, numStr[i] - '0', color);
+      startX += 8; // Move to the right for the next digit (5 pixels width + 3 pixels spacing)
+    }
+  }
+}
