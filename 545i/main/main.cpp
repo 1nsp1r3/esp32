@@ -1,13 +1,29 @@
 #include <string.h>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
+#include <time.h>
 #include <i3-lcd.h>
 
 #define TAG "I3-MAIN"
 
 #define BALL_SIZE 50
+
+//FPS
+int fps = 0;
+int frameCount = 0;
+time_t lastTime;
+
+/**
+ *
+ */
+void calculateFps(){
+  time_t currentTime;
+  
+  time(&currentTime);
+  if (currentTime-lastTime >= 1){
+    fps = frameCount;
+    frameCount = 0;
+    lastTime = currentTime;
+  }
+}
 
 /**
  * MAIN
@@ -28,10 +44,17 @@ extern "C" void app_main(){
   int incY = 1;
   int y = 160;
 
+  time(&lastTime);
+
   for(;;){
+    calculateFps();
+  
     i3LcdClear(buffer);
     i3LcdRectangle(buffer, x, y, x+BALL_SIZE-1, y+BALL_SIZE-1, LCD_COLOR_BLUE);
+    i3LcdDrawNumber(buffer, 10, 10, fps, LCD_COLOR_GREEN);
+
     i3LcdSwap(buffer);
+    frameCount++;
 
     x+=incX;
     y+=incY;
@@ -40,7 +63,5 @@ extern "C" void app_main(){
     if (x <= 0) incX = 1;
     if (y >= LCD_HEIGHT-BALL_SIZE) incY = -1;
     if (y <= 0) incY = 1;
-
-    //vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
