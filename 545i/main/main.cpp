@@ -1,6 +1,8 @@
 #include <string.h>
 #include <time.h>
 #include <i3-lcd.h>
+#include <i3-adc.h>
+#include "steinhart.h"
 
 #define TAG "I3-MAIN"
 
@@ -8,6 +10,7 @@
 
 time_t startTime;
 char timer[9];
+unsigned int numberOfSeconds = 0;
 
 /**
  * Calculate 00:00:00
@@ -16,7 +19,7 @@ void processTime(){
     time_t currentTime;
   
     time(&currentTime);
-    unsigned int numberOfSeconds = currentTime-startTime;
+    numberOfSeconds = currentTime-startTime;
 
     unsigned int hours   = numberOfSeconds / 3600;
     unsigned int minutes = (numberOfSeconds % 3600) / 60;
@@ -38,21 +41,28 @@ extern "C" void app_main(){
 
   ESP_LOGI(TAG, "Bonjour :-)");
 
-  uint16_t *buffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
-  if (buffer != NULL) ESP_LOGI(TAG, "Initializing back buffer... OK");
-
-  i3LcdInit();
-
+  //------
+  //LCD
+  //------
   int x = 120;
   int incX = 1;
   int incY = 1;
   int y = 160;
+  uint16_t *buffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
 
+  if (buffer != NULL) ESP_LOGI(TAG, "Initializing back buffer... OK");
+  i3LcdInit();
+
+  //------
+  //ADC
+  //------
+  char temperature[7] = "---";
+  int adcValue = 0;
+  uint8_t adcCount = 0;
+
+  i3AdcInit(ADC_UNIT_1, ADC_CHANNEL_1);
+  
   time(&startTime);
-
-  char temperature[4];
-  sprintf(temperature, "%d", 118);
-
   for(;;){
     processTime();
 
@@ -73,5 +83,22 @@ extern "C" void app_main(){
     if (x <= 0) incX = 1;
     if (y >= LCD_HEIGHT-BALL_SIZE) incY = -1;
     if (y <= 0) incY = 1;
+
+    adcValue += i3AdcRead(ADC_CHANNEL_1);
+    adcCount++;
+    if (adcCount == 10){
+      unsigned short adc = adcValue/10;
+      float Vout = toVoltage(adc);
+      float R = computeR(Vout);
+      float T = computeTemperature(R);
+
+      ESP_LOGI(TAG, "adc value: %d | Vout: %f | R: %f | Temperature: %f", adc, Vout, R, T);     
+      sprintf(temperature, "%d", (short)round(T));
+
+      adcValue = 0;
+      adcCount = 0;
+    }
+
+    vTaskDelay (500 / portTICK_PERIOD_MS);
   }
 }

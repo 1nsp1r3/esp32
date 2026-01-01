@@ -1,7 +1,6 @@
 idf_component_register(
-  SRCS main.cpp steinhart.cpp
+  SRCS i3-adc.cpp
   INCLUDE_DIRS .
   REQUIRES
-    i3-lcd
-    i3-adc
+    esp_adc
 )
