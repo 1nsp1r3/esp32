@@ -86,33 +86,35 @@ void i3LcdSwap(uint16_t *buffer){
 }
 
 /**
- * Draw a single digit (0-9) at the specified position
+ * Draw a single char at the specified position with scaling
  */
-void i3LcdDrawDigit(uint16_t *buffer, int x, int y, uint8_t digit, uint16_t color){
-  if (digit > 9) return; // Only digits 0-9 are supported
+void i3LcdChar(uint16_t *buffer, int x, int y, uint8_t c, uint16_t color, int size) {
+  int8_t character = c-32;
+  if ((character < 0) || (character > 94)) return; // Protection
+  if (size <= 0) size = 1; // Default size if invalid
   
   for (uint8_t col=0;col<5;col++){
     for (uint8_t row=0;row<7;row++){      
-      uint8_t bit = font_digits[digit][col];
+      uint8_t bit = font_5x7[character][col];
       if (bit & (1 << row)){ // Check if the pixel should be drawn (bit is set in font data)
-        i3LcdSetPixel(buffer, x+col, y+row, color);
+        // Draw a scaled pixel (size x size block)
+        for (int sy = 0; sy < size; sy++) {
+          for (int sx = 0; sx < size; sx++) {
+            i3LcdSetPixel(buffer, x + col * size + sx, y + row * size + sy, color);
+          }
+        }
       }
     }
   }
 }
 
 /**
- * Draw a number at the specified position
+ * Display a text at the specified position with scaling
  */
-void i3LcdDrawNumber(uint16_t *buffer, int x, int y, int number, uint16_t color){
-  char numStr[10]; //4294967295 (32bits unsigned)
-  sprintf(numStr, "%d", number);
-  
+void i3LcdString(uint16_t *buffer, int x, int y, char* text, uint16_t color, int size) {
   int startX = x;
-  for (int i=0;numStr[i]!='\0';i++){
-    if (numStr[i] >= '0' && numStr[i] <= '9'){
-      i3LcdDrawDigit(buffer, startX, y, numStr[i] - '0', color);
-      startX += 8; // Move to the right for the next digit (5 pixels width + 3 pixels spacing)
-    }
+  for (int i=0;text[i]!='\0';i++){
+    i3LcdChar(buffer, startX, y, text[i], color, size);
+    startX += 3+5*size; // Move to the right for the next digit (5 pixels width + 3 pixels spacing, scaled)
   }
 }
