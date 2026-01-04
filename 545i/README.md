@@ -1,5 +1,39 @@
+# TODO
+Mesurer en vrai les valeurs suivantes pour chaque °C mesuré (Il me faut 3 mesures précises, idéalement 0°C, 50°, 100°C)
+- La température
+- La tension en mv lu par l'adc
+- La valeur R de la thermistance calculée
+- Idéalement, la vraie valeur de la thermistance
+
+# Diagram
+```
+       _________________________________________________________________
+      |                                                                 |
+      |                  ESP32-S3-WAVESHARE                             |
+      |                   ______________                                |
+(Vin) o--ADC1_CH1|GPIO2-x| 1           1|x-3V3 (Vout)---------------o   |
+         ADC1_CH3|GPIO4  | 2           2|x-GND----------------o    _|_  |
+         ADC1_CH5|GPIO6  | 3           3|  GPIO43             |   |   | |
+         ADC2_CH5|GPIO16 | 4           4|  GPIO44             |   | R | | R1=15000 Ω
+         ADC2_CH6|GPIO17 | 5           5|  GPIO47             |   | 1 | | 
+         ADC2_CH7|GPIO18 | 6           6|  GPIO48             |   |___| |
+                  GPIO21 | 7           7|  GPIO15|ADC2_CH4    |     |___|
+         ADC1_CH7|GPIO8  | 8           8|  GPIO13|ADC2_CH2    |    _|_
+         ADC1_CH6|GPIO7  | 9           9|  GPIO11|ADC2_CH0    |   |   |
+         ADC1_CH9|GPIO10 |10          10|  GPIO12|ADC2_CH1    |   | T | Tbest temperature sensor
+         ADC2_CH9|GPIO20 |11          11|  GPIO14|ADC2_CH3    |   |___|
+         ADC2_CH8|GPIO19 |12          12|  GPIO9 |ADC1_CH8    |_____|
+                     GND |13          13|  GND
+                     5V0 |14          14|  Vbat
+                         |____USB-C_____|
+```
+
+# Current consumption
+- 0.2mA at 0°C `3.3V/(15020 + 1250)`
+- 0.02mA at 150°C `3.3V/(15020 + 162050)`
+
 # Compilation
-- Vérifier que la target est bien esp32s3 et non pas esp32 (Dans la barre de statut de Visual Studio Code)
+Target must be ESP32-S3, not ESP32
 
 # Prompt
 ```

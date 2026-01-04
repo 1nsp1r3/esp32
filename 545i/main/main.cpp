@@ -2,11 +2,10 @@
 #include <time.h>
 #include <i3-lcd.h>
 #include <i3-adc.h>
-#include "steinhart.h"
+#include <i3-steinhart.h>
+#include <i3-queue.h>
 
 #define TAG "I3-MAIN"
-
-#define BALL_SIZE 50
 
 time_t startTime;
 char timer[9];
@@ -44,10 +43,6 @@ extern "C" void app_main(){
   //------
   //LCD
   //------
-  int x = 120;
-  int incX = 1;
-  int incY = 1;
-  int y = 160;
   uint16_t *buffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
 
   if (buffer != NULL) ESP_LOGI(TAG, "Initializing back buffer... OK");
@@ -62,43 +57,41 @@ extern "C" void app_main(){
 
   i3AdcInit(ADC_UNIT_1, ADC_CHANNEL_1);
   
+  I3Queue *vinQ = new I3Queue(10);
+  I3Queue *rQ = new I3Queue(10);
+
   time(&startTime);
   for(;;){
     processTime();
 
-    i3LcdClear(buffer);
-    i3LcdRectangle(buffer, x, y, x+BALL_SIZE-1, y+BALL_SIZE-1, LCD_COLOR_BLUE);
-    
+    i3LcdClear(buffer);    
     i3LcdString(buffer, 2, 0, timer, LCD_COLOR_GREEN, 4);
     i3LcdString(buffer, 10, 100, temperature, LCD_COLOR_WHITE, 10);
-
     i3LcdString(buffer, 2, 305, "Inspir3 (c) 2026", LCD_COLOR_BLUE, 1);
 
     i3LcdSwap(buffer);
 
-    x+=incX;
-    y+=incY;
+    unsigned short adc = i3AdcRead(ADC_CHANNEL_1);
+    int mV = i3AdcToVoltage(adc);
 
-    if (x >= LCD_WIDTH-BALL_SIZE) incX = -1;
-    if (x <= 0) incX = 1;
-    if (y >= LCD_HEIGHT-BALL_SIZE) incY = -1;
-    if (y <= 0) incY = 1;
+    float Vin = mV / (float)1000;
+    float R = i3SteinhartGetR(Vin);
 
-    adcValue += i3AdcRead(ADC_CHANNEL_1);
-    adcCount++;
-    if (adcCount == 10){
-      unsigned short adc = adcValue/10;
-      float Vout = toVoltage(adc);
-      float R = computeR(Vout);
-      float T = computeTemperature(R);
+    vinQ->push(Vin);
+    rQ->push(R);
 
-      ESP_LOGI(TAG, "adc value: %d | Vout: %f | R: %f | Temperature: %f", adc, Vout, R, T);     
-      sprintf(temperature, "%d", (short)round(T));
+    if (vinQ->length() >= 10){
+      ESP_LOGI(TAG, "Vin min: %.2f max: %.2f avg: %.2f | R min: %.2f max: %.2f avg: %.2f"
+        , vinQ->min(), vinQ->max(), vinQ->avg()
+        , rQ->min(), rQ->max(), rQ->avg());
 
-      adcValue = 0;
-      adcCount = 0;
+      vinQ->clear();
+      rQ->clear();
     }
 
-    vTaskDelay (500 / portTICK_PERIOD_MS);
+    //float T = i3SteinhartGetTemperature(R);
+    //sprintf(temperature, "%d", (short)round(T));
+
+    vTaskDelay (1000 / portTICK_PERIOD_MS);
   }
 }

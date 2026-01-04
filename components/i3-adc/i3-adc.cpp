@@ -16,13 +16,38 @@ void i3AdcInit(adc_unit_t Unit, adc_channel_t Channel){
   };
   err = adc_oneshot_config_channel(adcHandle, Channel, &config);
   if (err != ESP_OK) ESP_LOGE(I3_ADC_TAG, "adc_oneshot_config_channel() failed");
+
+  adc_cali_curve_fitting_config_t cali_config = {
+    .unit_id = Unit,
+    .atten = ADC_ATTEN_DB_11,
+    .bitwidth = ADC_BITWIDTH_DEFAULT,
+  };
+  err = adc_cali_create_scheme_curve_fitting(&cali_config, &adcCaliHandle);
+  if (err != ESP_OK) ESP_LOGE(I3_ADC_TAG, "adc_cali_create_scheme_curve_fitting() failed");
 }
 
 unsigned short i3AdcRead(adc_channel_t Channel){
   ESP_LOGV(I3_ADC_TAG, "i3AdcRead()");
-  esp_err_t err = adc_oneshot_read(adcHandle, Channel, &i3AdcValue);
+
+  int adcValue;
+
+  esp_err_t err = adc_oneshot_read(adcHandle, Channel, &adcValue);
   if (err != ESP_OK) ESP_LOGE(I3_ADC_TAG, "adc_oneshot_read() failed");
-  return (unsigned short)i3AdcValue;
+  return (unsigned short)adcValue;
+}
+
+/**
+ * @return int millivolts
+ */
+unsigned short i3AdcToVoltage(unsigned short AdcValue){
+  ESP_LOGV(I3_ADC_TAG, "i3AdcToVoltage()");
+
+  int voltageMv;  // En millivolts
+
+  esp_err_t err = adc_cali_raw_to_voltage(adcCaliHandle, AdcValue, &voltageMv);
+  if (err != ESP_OK) ESP_LOGE(I3_ADC_TAG, "adc_cali_raw_to_voltage() failed");
+
+  return (unsigned short)voltageMv;
 }
 
 /**
