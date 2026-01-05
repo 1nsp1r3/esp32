@@ -5,9 +5,9 @@
 
 //A, B & C coefficients below are for the Tbest temperature sensor (545i)
 //Use a calculator like this https://www.thinksrs.com/downloads/programs/therm%20calc/ntccalibrator/ntccalculator.html
-#define STEINHART_A    0.001199520237
-#define STEINHART_B    0.0001505791472
-#define STEINHART_C    0.0000003956058234
+#define STEINHART_A    0.0009307255464
+#define STEINHART_B    0.0001939789286
+#define STEINHART_C    0.0000002353802935
 
 #define STEINHART_VOUT 3.3 //V (ESP32-S3-WAVESHARE 3V3 pin)
 #define STEINHART_R1   15000 //Ohms (Pont diviseur de tension)

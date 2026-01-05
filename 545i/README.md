@@ -1,9 +1,8 @@
 # TODO
-Mesurer en vrai les valeurs suivantes pour chaque °C mesuré (Il me faut 3 mesures précises, idéalement 0°C, 50°, 100°C)
-- La température
-- La tension en mv lu par l'adc
-- La valeur R de la thermistance calculée
-- Idéalement, la vraie valeur de la thermistance
+- Splashsrceen
+- Optimiser les marges sur le LCD
+- Déplacer le buffer coté i3lcd
+- Rafraichir plus souvent l'écran (pour le timer) mais faire une mesure adc tous les x secondes
 
 # Diagram
 ```
