@@ -36,15 +36,16 @@
 #define LCD_COLOR_BLACK 0x0000
 
 static esp_lcd_panel_handle_t panel_handle;
+static uint16_t* lcdBuffer = NULL;
 
-void i3LcdInit();
-void i3LcdClear(uint16_t *buffer);
-void i3LcdSetPixel(uint16_t *buffer, uint16_t x, uint16_t y, uint16_t color);
-void i3LcdLineH(uint16_t *buffer, uint16_t x1, uint16_t x2, uint16_t y, uint16_t color);
-void i3LcdRectangle(uint16_t *buffer, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
-void i3LcdSwap(uint16_t *buffer);
-void i3LcdChar(uint16_t *buffer, uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size);
-void i3LcdString(uint16_t *buffer, uint16_t x, uint16_t y, char *text, uint16_t color, uint8_t size);
-void i3LcdSprite(uint16_t *buffer, uint8_t *sprite, uint16_t x, uint16_t y, uint8_t width, uint8_t height, uint8_t size);
+uint16_t* i3LcdInit();
+void i3LcdClear(uint16_t* buffer=NULL);
+void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer=NULL);
+void i3LcdLineH(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color, uint16_t* buffer=NULL);
+void i3LcdRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color, uint16_t* buffer=NULL);
+void i3LcdSwap(uint16_t* buffer=NULL);
+void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, uint16_t* buffer=NULL);
+void i3LcdString(uint16_t x, uint16_t y, char* text, uint16_t color, uint8_t size, uint16_t* buffer=NULL);
+void i3LcdSprite(uint8_t* sprite, unsigned short* palette, uint16_t x, uint16_t y, uint8_t width, uint8_t height, uint8_t size, uint16_t* buffer=NULL);
 
 #endif

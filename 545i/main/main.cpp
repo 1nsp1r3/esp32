@@ -5,6 +5,8 @@
 #include <i3-adc.h>
 #include <i3-steinhart.h>
 #include <i3-queue.h>
+#include <i3-lzw.h>
+#include "logo.h"
 
 #define TAG "I3-MAIN"
 
@@ -40,12 +42,18 @@ extern "C" void app_main(){
 
   I3Queue *tempQueue = new I3Queue(5);
 
-  //------
+  //-------------
   //LCD
-  //------
-  uint16_t *buffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
-  if (buffer != NULL) ESP_LOGI(TAG, "Initializing back buffer... OK");
+  //-------------
+  size_t length;
+  unsigned char* splashscreen = i3Unzip(logo, sizeof(logo), length);
+
   i3LcdInit();
+  i3LcdClear();
+  i3LcdSprite(splashscreen, palette, 60, 20, 199, 199, 1);
+  i3LcdSwap();
+
+  vTaskDelay (5000 / portTICK_PERIOD_MS);
 
   //------
   //ADC
@@ -57,10 +65,10 @@ extern "C" void app_main(){
   for(;;){
     processTime();
 
-    i3LcdClear(buffer);    
-    i3LcdString(buffer, 136, 208,       timer, LCD_COLOR_GREEN, 4);
-    i3LcdString(buffer, 2,     2, temperature, LCD_COLOR_WHITE, 20);
-    i3LcdSwap(buffer);
+    i3LcdClear();
+    i3LcdString(136, 208,       timer, LCD_COLOR_GREEN, 4);
+    i3LcdString(2,     2, temperature, LCD_COLOR_WHITE, 20);
+    i3LcdSwap();
 
     unsigned short adc = i3AdcRead(ADC_CHANNEL_1);
     int mV = i3AdcToVoltage(adc);
