@@ -100,7 +100,7 @@ void i3LcdRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t
 /**
  * 
  */
-void i3LcdSwap(uint16_t *buffer){
+void i3LcdSwap(uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
   esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, b);
 }
@@ -118,8 +118,8 @@ void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, 
       uint8_t bit = font_5x7[character][col];
       if (bit & (1 << row)){ // Check if the pixel should be drawn (bit is set in font data)
         // Draw a scaled pixel (size x size block)
-        for (int sy = 0; sy < size; sy++) {
-          for (int sx = 0; sx < size; sx++) {
+        for (uint16_t sy = 0; sy < size; sy++) {
+          for (uint16_t sx = 0; sx < size; sx++) {
             i3LcdSetPixel(x + col * size + sx, y + row * size + sy, color, buffer);
           }
         }
@@ -132,25 +132,43 @@ void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, 
  * Display a text at the specified position with scaling
  */
 void i3LcdString(uint16_t x, uint16_t y, char* text, uint16_t color, uint8_t size, uint16_t* buffer) {
-  int startX = x;
-  for (int i=0;text[i]!='\0';i++){
+  uint16_t startX = x;
+  for (uint16_t i=0;text[i]!='\0';i++){
     i3LcdChar(startX, y, text[i], color, size, buffer);
     startX += 3+5*size; // Move to the right for the next digit (5 pixels width + 3 pixels spacing, scaled)
   }
 }
 
 /**
+ *
+ */
+uint16_t i3LcdToRgb565(uint8_t r, uint8_t g, uint8_t b){
+  uint16_t tmp = (uint16_t)((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+  uint8_t h = tmp >> 8;
+  uint8_t l = tmp & 0x00FF;
+  return (l << 8) | h;
+}
+
+/**
+ *
+ */
+uint16_t i3LcdGetColorFromPalette(uint8_t palette[][3], uint8_t index){
+  return i3LcdToRgb565(palette[index][0], palette[index][1], palette[index][2]);
+}
+
+/**
  * Display a sprite
  */
-void i3LcdSprite(uint8_t *sprite, unsigned short *palette, uint16_t x, uint16_t y, uint8_t width, uint8_t height, uint8_t size, uint16_t* buffer){
-  for (uint8_t col=0;col<width;col++){
-    for (uint8_t row=0;row<height;row++){      
-      uint8_t pixel = sprite[row*width+col];
-      uint16_t color = palette[pixel];
+void i3LcdSprite(uint8_t *sprite, uint8_t palette[][3], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t size, bool transparency, uint16_t* buffer){
+  for (uint16_t col=0;col<width;col++){
+    for (uint16_t row=0;row<height;row++){      
+      uint8_t colorIndex = sprite[row*width+col];
+      if (transparency && (colorIndex == 0)) continue;
+      uint16_t color = i3LcdGetColorFromPalette(palette, colorIndex);
 
       //i3LcdSetPixel(buffer, x + col, y + row, color);
-      for (int sy = 0; sy < size; sy++) {
-        for (int sx = 0; sx < size; sx++) {
+      for (uint16_t sy = 0; sy < size; sy++) {
+        for (uint16_t sx = 0; sx < size; sx++) {
           i3LcdSetPixel(x + col * size + sx, y + row * size + sy, color, buffer);
         }
       }

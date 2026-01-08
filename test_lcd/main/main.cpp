@@ -1,7 +1,7 @@
 #include <string.h>
 #include <time.h>
 #include <i3-lcd.h>
-#include <i3-lzw.h>
+//#include <i3-lzw.h>
 #include "logo.h"
 
 #define TAG "I3-MAIN"
@@ -15,12 +15,12 @@ extern "C" void app_main(){
 
   ESP_LOGI(TAG, "Bonjour :-)");
 
-  size_t length;
-  unsigned char* data = i3Unzip(logo, sizeof(logo), length);
+  //size_t length;
+  //unsigned char* data = i3Unzip(logo, sizeof(logo), length);
 
   i3LcdInit();
   i3LcdClear();
-  i3LcdSprite(data, palette, 60, 20, 199, 199, 1);
+  i3LcdSprite(logo, palette, 0, 0, 302, 240);
   i3LcdSwap();
 
   for(;;){
