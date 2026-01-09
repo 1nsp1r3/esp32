@@ -1,8 +1,7 @@
-#include <string.h>
 #include <time.h>
 #include <i3-lcd.h>
-//#include <i3-lzw.h>
-#include "logo.h"
+#include <i3-lzw.h>
+#include "logo-mazda.h"
 
 #define TAG "I3-MAIN"
 
@@ -15,12 +14,11 @@ extern "C" void app_main(){
 
   ESP_LOGI(TAG, "Bonjour :-)");
 
-  //size_t length;
-  //unsigned char* data = i3Unzip(logo, sizeof(logo), length);
+  unsigned char* data = i3Unzip(logo, sizeof(logo), LOGO_WIDTH*LOGO_HEIGHT);
 
   i3LcdInit();
   i3LcdClear();
-  i3LcdSprite(logo, palette, 0, 0, 302, 240);
+  i3LcdSprite(data, palette, 0, 0, LOGO_WIDTH, LOGO_HEIGHT);
   i3LcdSwap();
 
   for(;;){

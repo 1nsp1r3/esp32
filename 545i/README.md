@@ -1,9 +1,3 @@
-# TODO
-- Splashsrceen
-- Optimiser les marges sur le LCD
-- Déplacer le buffer coté i3lcd
-- Rafraichir plus souvent l'écran (pour le timer) mais faire une mesure adc tous les x secondes
-
 # Diagram
 ```
        _________________________________________________________________

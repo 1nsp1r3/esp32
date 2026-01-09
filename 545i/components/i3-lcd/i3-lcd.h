@@ -11,6 +11,13 @@
 #include "driver/gpio.h"
 #include "i3-lcd-5x7.h"
 
+//Color format: RGB565 (16 bits)
+#define LCD_COLOR_RED   0x07E0
+#define LCD_COLOR_GREEN 0x001F
+#define LCD_COLOR_BLUE  0xF800
+#define LCD_COLOR_WHITE 0xFFFF
+#define LCD_COLOR_BLACK 0x0000
+
 #define LCD_LANDSCAPE_MODE "landscape"
 
 #ifdef LCD_LANDSCAPE_MODE
@@ -28,13 +35,6 @@
 #define LCD_PIN_DC         42
 #define LCD_PIN_CS         45
 
-//Color format: RGB565 (16 bits)
-#define LCD_COLOR_RED   0x07E0
-#define LCD_COLOR_GREEN 0x001F
-#define LCD_COLOR_BLUE  0xF800
-#define LCD_COLOR_WHITE 0xFFFF
-#define LCD_COLOR_BLACK 0x0000
-
 static esp_lcd_panel_handle_t panel_handle;
 static uint16_t* lcdBuffer = NULL;
 
@@ -46,6 +46,9 @@ void i3LcdRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t
 void i3LcdSwap(uint16_t* buffer=NULL);
 void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, uint16_t* buffer=NULL);
 void i3LcdString(uint16_t x, uint16_t y, char* text, uint16_t color, uint8_t size, uint16_t* buffer=NULL);
-void i3LcdSprite(uint8_t* sprite, unsigned short* palette, uint16_t x, uint16_t y, uint8_t width, uint8_t height, uint8_t size, uint16_t* buffer=NULL);
+uint16_t i3LcdLength(char* text, uint8_t size);
+void i3LcdSprite(uint8_t* sprite, uint8_t palette[][3], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t size = 1, bool transparency = true, uint16_t* buffer=NULL);
+uint16_t i3LcdToRgb565(uint8_t r, uint8_t g, uint8_t b);
+uint16_t i3LcdGetColorFromPalette(uint8_t palette[][3], uint8_t index);
 
 #endif
