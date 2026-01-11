@@ -6,6 +6,7 @@
 #include <i3-steinhart.h>
 #include <i3-queue.h>
 #include <i3-lzw.h>
+#include <i3-sys.h>
 #include "logo-bmw.h"
 
 #define TAG "I3-MAIN"
@@ -40,11 +41,17 @@ extern "C" void app_main(){
   esp_log_level_set(TAG       , ESP_LOG_VERBOSE); //Log level (ESP_LOG_NONE|ESP_LOG_VERBOSE)
   esp_log_level_set(I3_LCD_TAG, ESP_LOG_VERBOSE);
 
+  ESP_LOGI(TAG, "Bonjour :-)");
+
+  //-------------
+  //Splashscreen
+  //-------------
+  uint8_t* splashscreen = i3SysPsramMallocUint8(LOGO_WIDTH*LOGO_HEIGHT); //PSRAM alloc to relieve RAM occupation
+  i3Unzip(logo, sizeof(logo), splashscreen);
+
   //-------------
   //LCD
   //-------------
-    unsigned char* splashscreen = i3Unzip(logo, sizeof(logo), LOGO_WIDTH*LOGO_HEIGHT);
-
   i3LcdInit();
   i3LcdClear();
   i3LcdSprite(splashscreen, palette, 60, 20, LOGO_WIDTH, LOGO_HEIGHT);
@@ -68,6 +75,7 @@ extern "C" void app_main(){
   uint16_t tempLength   = i3LcdLength("---", 20);
   uint16_t timerLength  = i3LcdLength("00:00:00", 4);
   uint16_t minMaxLength = i3LcdLength("---", 1);
+
 
   uint16_t count = 0;
   for(;;){

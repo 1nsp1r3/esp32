@@ -7,4 +7,5 @@ idf_component_register(
     i3-steinhart
     i3-queue
     i3-lzw
+    i3-sys
 )

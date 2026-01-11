@@ -3,7 +3,7 @@
 /**
  *
  */
-uint8_t* i3Zip(const uint8_t* data, size_t size, size_t& out_size) {
+uint8_t* i3Zip(const uint8_t* data, size_t size, size_t& out_size){
     if (!data || size == 0) {
         out_size = 0;
         return nullptr;
@@ -70,7 +70,7 @@ uint8_t* i3Zip(const uint8_t* data, size_t size, size_t& out_size) {
 }
 
 // Structure compacte pour le dictionnaire LZW
-struct LZWEntry {
+struct LZWEntry{
     uint16_t prefix;  // Code précédent
     uint8_t suffix;   // Caractère ajouté
 };
@@ -79,7 +79,7 @@ struct LZWEntry {
  * Reconstruit une séquence depuis le dictionnaire de manière itérative
  * Écrit de la fin vers le début pour éviter la récursion
  */
-static size_t reconstructSequence(const LZWEntry* dict, uint16_t code, uint8_t* buffer, size_t pos) {
+static size_t reconstructSequence(const LZWEntry* dict, uint16_t code, uint8_t* buffer, size_t pos){
     // Calcule d'abord la longueur en remontant la chaîne
     uint16_t temp_code = code;
     size_t length = 0;
@@ -106,7 +106,7 @@ static size_t reconstructSequence(const LZWEntry* dict, uint16_t code, uint8_t* 
 /**
  * Obtient le premier caractère d'une séquence
  */
-static uint8_t getFirstChar(const LZWEntry* dict, uint16_t code) {
+static uint8_t getFirstChar(const LZWEntry* dict, uint16_t code){
     while (code >= LZW_INITIAL_CODE_SIZE) {
         code = dict[code - LZW_INITIAL_CODE_SIZE].prefix;
     }
@@ -116,12 +116,11 @@ static uint8_t getFirstChar(const LZWEntry* dict, uint16_t code) {
 /**
  *
  */
-uint8_t* i3Unzip(const uint8_t* data, size_t size, size_t expected_size) {
+void i3Unzip(const uint8_t* data, size_t size, uint8_t* output){
     if (!data || size == 0) {
-        return nullptr;
+        return;
     }
 
-    uint8_t* output = new uint8_t[expected_size];
     size_t output_pos = 0;
 
     // Dictionnaire compact : seulement prefix + suffix
@@ -152,7 +151,7 @@ uint8_t* i3Unzip(const uint8_t* data, size_t size, size_t expected_size) {
                 delete[] output;
                 delete[] dictionary;
                 delete[] temp_buffer;
-                return nullptr;
+                return;
             }
             output[output_pos++] = static_cast<uint8_t>(code);
             old_code = code;
@@ -173,7 +172,7 @@ uint8_t* i3Unzip(const uint8_t* data, size_t size, size_t expected_size) {
                 delete[] output;
                 delete[] dictionary;
                 delete[] temp_buffer;
-                return nullptr;
+                return;
             }
 
             // Copie la séquence dans le résultat
@@ -209,7 +208,7 @@ uint8_t* i3Unzip(const uint8_t* data, size_t size, size_t expected_size) {
                 delete[] output;
                 delete[] dictionary;
                 delete[] temp_buffer;
-                return nullptr;
+                return;
             }
 
             // Copie la séquence dans le résultat
@@ -232,5 +231,4 @@ uint8_t* i3Unzip(const uint8_t* data, size_t size, size_t expected_size) {
 
     delete[] dictionary;
     delete[] temp_buffer;
-    return output;
 }
