@@ -4,4 +4,5 @@ idf_component_register(
   REQUIRES
     i3-lcd
     i3-lzw
+    i3-sys
 )
