@@ -44,8 +44,8 @@ uint16_t* i3LcdInit(){
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true)); //Landscape mode
 
     //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
-    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true)); //usb-c power on the left
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));   //usb-c power on the right
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true)); //usb-c power on the left
+    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));   //usb-c power on the right
   #else
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false)); //Portrait mode
 
