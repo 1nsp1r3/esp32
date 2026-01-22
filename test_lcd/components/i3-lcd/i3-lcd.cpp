@@ -3,7 +3,7 @@
 /**
  *
  */
-uint16_t* i3LcdInit(){
+uint16_t* i3LcdInit(bool LandscapeMode, bool Mirror){
   ESP_LOGV(I3_LCD_TAG, "i3LcdInit()");
 
   spi_bus_config_t buscfg = {
@@ -40,19 +40,17 @@ uint16_t* i3LcdInit(){
   ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
   ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 
-  #ifdef LCD_LANDSCAPE_MODE
+  if (LandscapeMode){
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true)); //Landscape mode
-
-    //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
-    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true)); //usb-c power on the left
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));   //usb-c power on the right
-  #else
+    lcdWidth = 320;
+    lcdHeight = 240;    
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, !Mirror, Mirror)); //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
+  }else{
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false)); //Portrait mode
-
-    //In portrait mode, the parameters order of esp_lcd_panel_mirror() is mirror_x then mirror_y
-    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true)); //usb-c power on the top
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, false));  //usb-c power on the bottom
-  #endif
+    lcdWidth = 240;
+    lcdHeight = 320;    
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, Mirror, Mirror)); //In portrait mode, the parameters order of esp_lcd_panel_mirror() is mirror_x then mirror_y
+  }
 
   ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
   ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
@@ -61,7 +59,7 @@ uint16_t* i3LcdInit(){
   gpio_set_direction(LCD_PIN_BACK_LIGHT, GPIO_MODE_OUTPUT);
   gpio_set_level(LCD_PIN_BACK_LIGHT, 1);
 
-  lcdBuffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
+  lcdBuffer = (uint16_t*)malloc(lcdWidth * lcdHeight * sizeof(uint16_t));
   if (lcdBuffer == NULL) ESP_LOGE(I3_LCD_TAG, "Initializing back buffer... KO");
   return lcdBuffer;
 }
@@ -71,7 +69,7 @@ uint16_t* i3LcdInit(){
  */
 void i3LcdClear(uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  memset(b, LCD_COLOR_BLACK, LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
+  memset(b, LCD_COLOR_BLACK, lcdWidth * lcdHeight * sizeof(uint16_t));
 }
 
 /**
@@ -86,7 +84,7 @@ uint8_t i3LcdGetPixel(uint16_t x, uint16_t y, uint16_t width, uint8_t* buffer){
  */
 void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  b[y * LCD_WIDTH + x] = color;
+  b[y * lcdWidth + x] = color;
 }
 
 /**
@@ -94,7 +92,7 @@ void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer){
  */
 void i3LcdLineH(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color, uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  for (int x=x1;x<=x2;x++) b[y * LCD_WIDTH + x] = color;
+  for (int x=x1;x<=x2;x++) b[y * lcdWidth + x] = color;
 }
 
 /**
@@ -109,7 +107,7 @@ void i3LcdRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t
  */
 void i3LcdSwap(uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, b);
+  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, lcdWidth, lcdHeight, b);
 }
 
 /**

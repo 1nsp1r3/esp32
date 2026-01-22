@@ -18,16 +18,6 @@
 #define LCD_COLOR_WHITE 0xFFFF
 #define LCD_COLOR_BLACK 0x0000
 
-#define LCD_LANDSCAPE_MODE "landscape"
-
-#ifdef LCD_LANDSCAPE_MODE
-    #define LCD_WIDTH  320
-    #define LCD_HEIGHT 240
-#else
-    #define LCD_WIDTH  240
-    #define LCD_HEIGHT 320
-#endif
-
 #define LCD_PIN_BACK_LIGHT GPIO_NUM_1
 #define LCD_PIN_MOSI       38
 #define LCD_PIN_SCLK       39
@@ -37,8 +27,10 @@
 
 static esp_lcd_panel_handle_t panel_handle;
 static uint16_t* lcdBuffer = NULL;
+static uint16_t lcdWidth  = 0; //See i3LcdInit()
+static uint16_t lcdHeight = 0; //See i3LcdInit()
 
-uint16_t* i3LcdInit();
+uint16_t* i3LcdInit(bool LandscapeMode=true, bool Mirror=false);
 void i3LcdClear(uint16_t* buffer=NULL);
 uint8_t i3LcdGetPixel(uint16_t x, uint16_t y, uint16_t width, uint8_t* buffer);
 void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer=NULL);
