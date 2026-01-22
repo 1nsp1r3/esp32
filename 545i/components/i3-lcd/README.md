@@ -2,13 +2,16 @@
 
 # Sprite
 ## BMP/Bit depth 8 (256 colors)
-- Ouvrir l'image avec gimp et dans Image>Mode, choisir Indexed au lieu de RGB
+- Ouvrir l'image avec gimp et dans `Image>Mode`, choisir Indexed au lieu de RGB
   - Si l'image est déja en Indexed, choisir RGB puis refaite l'inverse
 - Dans la fenêtre qui s'ouvre, choisir "Generate optimum palette"
+- Pour afficher la palette et connaitre le nombre de couleur utilisées : `Windows>Dockable Dialogs>Colormap`
+- Pour placer la couleur de fond en index 0
+  - Clic droit sur la palette `Rearrange Colormap...` puis déplacer la couleur de fond en 1ère position
 - File>Export As "C source code header" (.h) file
   - header_data_cmap est la palette
-    - Copier que les couleurs utilisées (On peut connaitre son index en cliquant sur la dernière couleur dans Windows>Dockable Dialogs>Colormap)
-  - header_data est l'image
+    - Copier que les couleurs utilisées
+  - header_data est l'image que l'on peut compresser avec i3-lzw
 
 ## Compresser les données de l'image
 Utiliser `components/i3-lzw/` pour compresser les données à l'aide d'un programme C++ externe
@@ -21,8 +24,8 @@ Utiliser `components/i3-lzw/` pour compresser les données à l'aide d'un progra
 /**
  *
  */
-void generateArrayDeclaration(const uint8_t* tableau, size_t taille){
-    printf("uint8_t data[] = {\n    ");
+void generateArrayDeclaration(const unsigned char* tableau, size_t taille){
+    printf("unsigned char data[] = {\n    ");
 
     for (size_t i=0;i<taille;i++){
         printf("0x%02X", tableau[i]);
@@ -38,7 +41,7 @@ void generateArrayDeclaration(const uint8_t* tableau, size_t taille){
 
 int main() {
     size_t length;
-    uint8_t* result = i3Zip(logo, sizeof(logo), length);
+    uint8_t* result = i3Zip(data, sizeof(data), length);
     generateArrayDeclaration(result, length);
 }
 ```

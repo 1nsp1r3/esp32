@@ -3,7 +3,7 @@
 /**
  *
  */
-uint16_t* i3LcdInit(){
+uint16_t* i3LcdInit(bool LandscapeMode, bool MirrorMode){
   ESP_LOGV(I3_LCD_TAG, "i3LcdInit()");
 
   spi_bus_config_t buscfg = {
@@ -40,19 +40,17 @@ uint16_t* i3LcdInit(){
   ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
   ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 
-  #ifdef LCD_LANDSCAPE_MODE
+  if (LandscapeMode){
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true)); //Landscape mode
-
-    //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true)); //usb-c power on the left
-    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));   //usb-c power on the right
-  #else
+    lcdWidth = 320;
+    lcdHeight = 240;    
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, !MirrorMode, MirrorMode)); //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
+  }else{
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false)); //Portrait mode
-
-    //In portrait mode, the parameters order of esp_lcd_panel_mirror() is mirror_x then mirror_y
-    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true)); //usb-c power on the top
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, false));  //usb-c power on the bottom
-  #endif
+    lcdWidth = 240;
+    lcdHeight = 320;    
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, MirrorMode, MirrorMode)); //In portrait mode, the parameters order of esp_lcd_panel_mirror() is mirror_x then mirror_y
+  }
 
   ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
   ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
@@ -61,7 +59,7 @@ uint16_t* i3LcdInit(){
   gpio_set_direction(LCD_PIN_BACK_LIGHT, GPIO_MODE_OUTPUT);
   gpio_set_level(LCD_PIN_BACK_LIGHT, 1);
 
-  lcdBuffer = (uint16_t*)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
+  lcdBuffer = (uint16_t*)malloc(lcdWidth * lcdHeight * sizeof(uint16_t));
   if (lcdBuffer == NULL) ESP_LOGE(I3_LCD_TAG, "Initializing back buffer... KO");
   return lcdBuffer;
 }
@@ -71,7 +69,14 @@ uint16_t* i3LcdInit(){
  */
 void i3LcdClear(uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  memset(b, LCD_COLOR_BLACK, LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
+  memset(b, LCD_COLOR_BLACK, lcdWidth * lcdHeight * sizeof(uint16_t));
+}
+
+/**
+ * Not compatible with the lcd buffer
+ */
+uint8_t i3LcdGetPixel(uint16_t x, uint16_t y, uint16_t width, uint8_t* buffer){
+  return buffer[y*width+x];
 }
 
 /**
@@ -79,7 +84,7 @@ void i3LcdClear(uint16_t* buffer){
  */
 void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  b[y * LCD_WIDTH + x] = color;
+  b[y * lcdWidth + x] = color;
 }
 
 /**
@@ -87,7 +92,7 @@ void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer){
  */
 void i3LcdLineH(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color, uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  for (int x=x1;x<=x2;x++) b[y * LCD_WIDTH + x] = color;
+  for (int x=x1;x<=x2;x++) b[y * lcdWidth + x] = color;
 }
 
 /**
@@ -102,7 +107,7 @@ void i3LcdRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t
  */
 void i3LcdSwap(uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, b);
+  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, lcdWidth, lcdHeight, b);
 }
 
 /**
@@ -142,7 +147,7 @@ void i3LcdString(uint16_t x, uint16_t y, char* text, uint16_t color, uint8_t siz
 /**
  * Display a text at the specified position with scaling
  */
-uint16_t i3LcdLength(char* text, uint8_t size){
+uint16_t i3LcdLength(const char* text, uint8_t size){
     int len = strlen(text);
     int lenChar  = len*5*size;
     int lenSpace = (len-1)*3;
@@ -166,22 +171,25 @@ uint16_t i3LcdGetColorFromPalette(uint8_t palette[][3], uint8_t index){
   return i3LcdToRgb565(palette[index][0], palette[index][1], palette[index][2]);
 }
 
+
+
 /**
  * Display a sprite
  */
-void i3LcdSprite(uint8_t *sprite, uint8_t palette[][3], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t size, bool transparency, uint16_t* buffer){
+void i3LcdSprite(uint8_t *sprite, uint8_t palette[][3], uint16_t srcX, uint16_t srcY, uint16_t srcWidth, uint16_t dstX, uint16_t dstY, uint16_t width, uint16_t height, bool xReverse, uint8_t size, bool transparency, uint16_t* buffer){
   for (uint16_t col=0;col<width;col++){
     for (uint16_t row=0;row<height;row++){
-      uint8_t colorIndex = sprite[row*width+col];
+      uint8_t colorIndex = i3LcdGetPixel(srcX+col, srcY+row, srcWidth, sprite);
       if (transparency && (colorIndex == 0)) continue;
       uint16_t color = i3LcdGetColorFromPalette(palette, colorIndex);
 
-      //i3LcdSetPixel(buffer, x + col, y + row, color);
-      for (uint16_t sy = 0; sy < size; sy++) {
+      uint16_t x = xReverse ? (dstX+width-1)-col : dstX+col;
+      i3LcdSetPixel(x, dstY+row, color, buffer);
+      /*for (uint16_t sy = 0; sy < size; sy++) {
         for (uint16_t sx = 0; sx < size; sx++) {
-          i3LcdSetPixel(x + col * size + sx, y + row * size + sy, color, buffer);
+          i3LcdSetPixel(xDst + col * size + sx, yDst + row * size + sy, color, buffer);
         }
-      }
+      }*/
     }
   }
 }

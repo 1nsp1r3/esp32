@@ -3,7 +3,7 @@
 /**
  *
  */
-uint16_t* i3LcdInit(bool LandscapeMode, bool Mirror){
+uint16_t* i3LcdInit(bool LandscapeMode, bool MirrorMode){
   ESP_LOGV(I3_LCD_TAG, "i3LcdInit()");
 
   spi_bus_config_t buscfg = {
@@ -44,12 +44,12 @@ uint16_t* i3LcdInit(bool LandscapeMode, bool Mirror){
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true)); //Landscape mode
     lcdWidth = 320;
     lcdHeight = 240;    
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, !Mirror, Mirror)); //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, !MirrorMode, MirrorMode)); //In landscape mode, the parameters order of esp_lcd_panel_mirror() is mirror_y then mirror_x
   }else{
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false)); //Portrait mode
     lcdWidth = 240;
     lcdHeight = 320;    
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, Mirror, Mirror)); //In portrait mode, the parameters order of esp_lcd_panel_mirror() is mirror_x then mirror_y
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, MirrorMode, MirrorMode)); //In portrait mode, the parameters order of esp_lcd_panel_mirror() is mirror_x then mirror_y
   }
 
   ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
@@ -147,7 +147,7 @@ void i3LcdString(uint16_t x, uint16_t y, char* text, uint16_t color, uint8_t siz
 /**
  * Display a text at the specified position with scaling
  */
-uint16_t i3LcdLength(char* text, uint8_t size){
+uint16_t i3LcdLength(const char* text, uint8_t size){
     int len = strlen(text);
     int lenChar  = len*5*size;
     int lenSpace = (len-1)*3;

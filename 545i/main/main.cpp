@@ -29,9 +29,12 @@ extern "C" void app_main(){
   uint16_t timerLength  = i3LcdLength("00:00:00", 4);
   uint16_t minMaxLength = i3LcdLength("---", 1);
 
-  i3LcdInit();
+  i3LcdInit(
+    true, //LandscapeMode
+    true  //MirrorMode
+  );
   i3LcdClear();
-  i3LcdSprite(splashscreen, palette, 60, 20, LOGO_WIDTH, LOGO_HEIGHT);
+  i3LcdSprite(splashscreen, palette, 0, 0, LOGO_WIDTH, 60, 20, LOGO_WIDTH, LOGO_HEIGHT);
   i3LcdSwap(); //Show BMW logo
 
   adcInit();
