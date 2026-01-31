@@ -1,9 +1,6 @@
 idf_component_register(
-  SRCS main.cpp
+  SRCS i3-sprite.cpp
   INCLUDE_DIRS .
   REQUIRES
     i3-lcd
-    i3-sprite
-    i3-lzw
-    i3-sys
 )

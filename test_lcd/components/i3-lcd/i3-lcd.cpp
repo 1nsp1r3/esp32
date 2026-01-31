@@ -61,6 +61,7 @@ uint16_t* i3LcdInit(bool LandscapeMode, bool MirrorMode){
 
   lcdBuffer = (uint16_t*)malloc(lcdWidth * lcdHeight * sizeof(uint16_t));
   if (lcdBuffer == NULL) ESP_LOGE(I3_LCD_TAG, "Initializing back buffer... KO");
+  i3LcdClear();
   return lcdBuffer;
 }
 
@@ -73,33 +74,26 @@ void i3LcdClear(uint16_t* buffer){
 }
 
 /**
- * Not compatible with the lcd buffer
- */
-uint8_t i3LcdGetPixel(uint16_t x, uint16_t y, uint16_t width, uint8_t* buffer){
-  return buffer[y*width+x];
-}
-
-/**
  *
  */
-void i3LcdSetPixel(uint16_t x, uint16_t y, uint16_t color, uint16_t* buffer){
+void i3LcdSetPixel(Pos pos, uint16_t color, uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  b[y * lcdWidth + x] = color;
+  b[pos.y * lcdWidth + pos.x] = color;
 }
 
 /**
  *
  */
-void i3LcdLineH(uint16_t x1, uint16_t x2, uint16_t y, uint16_t color, uint16_t* buffer){
+void i3LcdLineH(Pos src, Pos dst, uint16_t color, uint16_t* buffer){
   uint16_t* b = (buffer == NULL) ? lcdBuffer : buffer;
-  for (int x=x1;x<=x2;x++) b[y * lcdWidth + x] = color;
+  for (int x=src.x;x<=dst.x;x++) b[src.y * lcdWidth + x] = color;
 }
 
 /**
  *
  */
-void i3LcdRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color, uint16_t* buffer){
-  for (int y=y1;y<=y2;y++) i3LcdLineH(x1, x2, y, color, buffer);
+void i3LcdRectangle(Pos topLeft, Pos bottomRight, uint16_t color, uint16_t* buffer){
+  for (uint16_t y=topLeft.y;y<=bottomRight.y;y++) i3LcdLineH({topLeft.x, y}, {bottomRight.x, y}, color, buffer);
 }
 
 /**
@@ -113,7 +107,7 @@ void i3LcdSwap(uint16_t* buffer){
 /**
  * Draw a single char at the specified position with scaling
  */
-void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, uint16_t* buffer) {
+void i3LcdChar(Pos pos, uint8_t c, uint16_t color, uint8_t size, uint16_t* buffer) {
   int8_t character = c-32;
   if ((character < 0) || (character > 94)) return; // Protection
   if (size <= 0) size = 1; // Default size if invalid
@@ -125,7 +119,7 @@ void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, 
         // Draw a scaled pixel (size x size block)
         for (uint16_t sy = 0; sy < size; sy++) {
           for (uint16_t sx = 0; sx < size; sx++) {
-            i3LcdSetPixel(x + col * size + sx, y + row * size + sy, color, buffer);
+            i3LcdSetPixel({(uint16_t)(pos.x + col * size + sx), (uint16_t)(pos.y + row * size + sy)}, color, buffer);
           }
         }
       }
@@ -136,10 +130,10 @@ void i3LcdChar(uint16_t x, uint16_t y, uint8_t c, uint16_t color, uint8_t size, 
 /**
  * Display a text at the specified position with scaling
  */
-void i3LcdString(uint16_t x, uint16_t y, char* text, uint16_t color, uint8_t size, uint16_t* buffer) {
-  uint16_t startX = x;
+void i3LcdString(Pos pos, char* text, uint16_t color, uint8_t size, uint16_t* buffer) {
+  uint16_t startX = pos.x;
   for (uint16_t i=0;text[i]!='\0';i++){
-    i3LcdChar(startX, y, text[i], color, size, buffer);
+    i3LcdChar({startX, pos.y}, text[i], color, size, buffer);
     startX += 3+5*size; // Move to the right for the next digit (5 pixels width + 3 pixels spacing, scaled)
   }
 }
@@ -169,27 +163,4 @@ uint16_t i3LcdToRgb565(uint8_t r, uint8_t g, uint8_t b){
  */
 uint16_t i3LcdGetColorFromPalette(uint8_t palette[][3], uint8_t index){
   return i3LcdToRgb565(palette[index][0], palette[index][1], palette[index][2]);
-}
-
-
-
-/**
- * Display a sprite
- */
-void i3LcdSprite(uint8_t *sprite, uint8_t palette[][3], uint16_t srcX, uint16_t srcY, uint16_t srcWidth, uint16_t dstX, uint16_t dstY, uint16_t width, uint16_t height, bool xReverse, uint8_t size, bool transparency, uint16_t* buffer){
-  for (uint16_t col=0;col<width;col++){
-    for (uint16_t row=0;row<height;row++){
-      uint8_t colorIndex = i3LcdGetPixel(srcX+col, srcY+row, srcWidth, sprite);
-      if (transparency && (colorIndex == 0)) continue;
-      uint16_t color = i3LcdGetColorFromPalette(palette, colorIndex);
-
-      uint16_t x = xReverse ? (dstX+width-1)-col : dstX+col;
-      i3LcdSetPixel(x, dstY+row, color, buffer);
-      /*for (uint16_t sy = 0; sy < size; sy++) {
-        for (uint16_t sx = 0; sx < size; sx++) {
-          i3LcdSetPixel(xDst + col * size + sx, yDst + row * size + sy, color, buffer);
-        }
-      }*/
-    }
-  }
 }
