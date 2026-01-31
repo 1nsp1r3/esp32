@@ -1,6 +1,7 @@
 #include <i3-lcd.h>
 #include <i3-lzw.h>
 #include <i3-sys.h>
+#include <i3-sprite.h>
 #include "timer.h"
 #include "adc.h"
 #include "logo-bmw.h"
@@ -21,6 +22,7 @@ extern "C" void app_main(){
   //-------------
   uint8_t* splashscreen = i3SysPsramMallocUint8(LOGO_WIDTH*LOGO_HEIGHT); //PSRAM alloc to relieve RAM occupation
   i3Unzip(logo, sizeof(logo), splashscreen);
+  i3SpriteInit(splashscreen, LOGO_WIDTH, LOGO_HEIGHT, palette);
 
   //-------------
   //LCD
@@ -34,7 +36,7 @@ extern "C" void app_main(){
     true  //MirrorMode
   );
   i3LcdClear();
-  i3LcdSprite(splashscreen, palette, 0, 0, LOGO_WIDTH, 60, 20, LOGO_WIDTH, LOGO_HEIGHT);
+  i3SpriteDraw({0, 0}, {60, 20}, {LOGO_WIDTH, LOGO_HEIGHT});
   i3LcdSwap(); //Show BMW logo
 
   adcInit();
@@ -47,10 +49,10 @@ extern "C" void app_main(){
 
     if (count > 5){ //After 5s, hide the BMW logo and display informations
       i3LcdClear();
-      i3LcdString(160-(timerLength/2), 209,       timer, LCD_COLOR_GREEN, 4);  //209 = 239-(7x4)-2
-      i3LcdString(160-(tempLength/2),   35, temperature, LCD_COLOR_WHITE, 20); //35 = (210/2)-((7x20)/2)
-      i3LcdString(2,                   232,     tempMin, LCD_COLOR_WHITE, 1);
-      i3LcdString(318-minMaxLength,    232,     tempMax, LCD_COLOR_WHITE, 1);
+      i3LcdString({(uint16_t)(160-(timerLength/2)), 209},       timer, LCD_COLOR_GREEN, 4);  //209 = 239-(7x4)-2
+      i3LcdString({ (uint16_t)(160-(tempLength/2)),  35}, temperature, LCD_COLOR_WHITE, 20); //35 = (210/2)-((7x20)/2)
+      i3LcdString({                              2, 232},     tempMin, LCD_COLOR_WHITE, 1);
+      i3LcdString({   (uint16_t)(318-minMaxLength), 232},     tempMax, LCD_COLOR_WHITE, 1);
       i3LcdSwap();
     }
     vTaskDelay (1000 / portTICK_PERIOD_MS);

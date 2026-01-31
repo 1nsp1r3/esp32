@@ -2,6 +2,8 @@
 #include <i3-lcd.h>
 #include <i3-lzw.h>
 #include <i3-sys.h>
+#include <i3-sprite.h>
+
 //#include "logo-mazda.h"
 #include "mario.h"
 
@@ -45,24 +47,24 @@ uint8_t* sprites;
 /**
  *
  */
-void showNextFrame(uint8_t *sprites, uint16_t x, uint16_t y, uint8_t width, uint8_t height){
-  i3LcdSprite(sprites, palette, frames[currentFrame][0], frames[currentFrame][1], IMAGE_WIDTH, x, y, width, height, frames[currentFrame][2]);
+void showNextFrame(uint16_t x, uint16_t y, uint8_t width, uint8_t height){
+  i3SpriteDraw({frames[currentFrame][0], frames[currentFrame][1]}, {x, y}, {width, height}, frames[currentFrame][2]);
 }
 
 void translationLeft2RightDisplay(uint16_t x, uint16_t y){
-  i3LcdSprite(sprites, palette, frames[7][0], frames[7][1], IMAGE_WIDTH, x, y, 31, 30, false);
+  i3SpriteDraw({frames[7][0], frames[7][1]}, {x, y}, {31, 30}, false);
 }
 
 void translationTop2BottomDisplay(uint16_t x, uint16_t y){
-  i3LcdSprite(sprites, palette, frames[11][0], frames[11][1], IMAGE_WIDTH, x, y, 31, 30, false);
+  i3SpriteDraw({frames[11][0], frames[11][1]}, {x, y}, {31, 30}, false);
 }
 
 void translationRight2LeftDisplay(uint16_t x, uint16_t y){
-  i3LcdSprite(sprites, palette, frames[7][0], frames[7][1], IMAGE_WIDTH, x, y, 31, 30, true);
+  i3SpriteDraw({frames[7][0], frames[7][1]}, {x, y}, {31, 30}, true);
 }
 
 void translationBottom2TopDisplay(uint16_t x, uint16_t y){
-  i3LcdSprite(sprites, palette, frames[0][0], frames[0][1], IMAGE_WIDTH, x, y, 31, 30, false);
+  i3SpriteDraw({frames[0][0], frames[0][1]}, {x, y}, {31, 30}, false);
 }
 
 Animation* avi;
@@ -82,6 +84,7 @@ extern "C" void app_main(){
 
   sprites = i3SysPsramMallocUint8(IMAGE_WIDTH*IMAGE_HEIGHT);
   i3Unzip(image, sizeof(image), sprites);
+  i3SpriteInit(sprites, IMAGE_WIDTH, IMAGE_HEIGHT, palette);
 
   avi = new Animation(4);
   avi->addClip(&translationLeft2Right);
@@ -92,7 +95,7 @@ extern "C" void app_main(){
   i3LcdInit();
   for(;;){
     i3LcdClear(); 
-    showNextFrame(sprites, 160, 120, 31, 30);
+    showNextFrame(160, 120, 31, 30);
     avi->playFrame();
     i3LcdSwap();
 
