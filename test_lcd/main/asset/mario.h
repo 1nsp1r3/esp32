@@ -1,7 +1,37 @@
-#define IMAGE_WIDTH 384
-#define IMAGE_HEIGHT 31
+#ifndef MARIO_H
+#define MARIO_H
 
-uint8_t image[] = { //384x31 -> 11904 bytes -> 74% LZW compressed -> 3005 bytes
+#define MARIO_WIDTH 384
+#define MARIO_HEIGHT 31
+
+#define MARIO_MAX_FRAMES 22
+
+uint16_t marioFrame[MARIO_MAX_FRAMES][3] = {
+  {  0, 0, false}, //0 Rear
+  { 32, 0, false},
+  { 64, 0, false},
+  { 96, 0, false},
+  {128, 0, false},
+  {160, 0, false},
+  {192, 0, false},
+  {224, 0, false}, //7 Right
+  {256, 0, false},
+  {288, 0, false},
+  {320, 0, false}, 
+  {352, 0, false}, //11 Front
+  {320, 0, true},
+  {288, 0, true},
+  {256, 0, true},
+  {224, 0, true},
+  {192, 0, true},
+  {160, 0, true},
+  {128, 0, true},
+  { 96, 0, true},
+  { 64, 0, true},
+  { 32, 0, true},
+};
+
+uint8_t marioData[] = { //384x31 -> 11904 bytes -> 74% LZW compressed -> 3005 bytes
 	0x00,0x01,0x00,0x10,0x11,0x02,0x10,0x20,0x03,0x10,0x50,0x03,
     0x10,0x31,0x08,0x10,0x91,0x0A,0x10,0x11,0x06,0x10,0x71,0x0B,
     0x10,0xF1,0x09,0x10,0xD1,0x10,0x11,0x31,0x03,0x11,0x21,0x14,
@@ -255,7 +285,7 @@ uint8_t image[] = { //384x31 -> 11904 bytes -> 74% LZW compressed -> 3005 bytes
     0x89,0x68,0xCA,0x11,0xA0,
 };
 
-uint8_t palette[][3] = {
+uint8_t marioPalette[][3] = {
 	{ 48,248, 48},
 	{  0,  0,224},
 	{120,  0,  0},
@@ -272,3 +302,5 @@ uint8_t palette[][3] = {
 	{200,232,232},
 	{248,248,248},
 };
+
+#endif

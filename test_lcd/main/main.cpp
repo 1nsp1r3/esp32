@@ -5,73 +5,11 @@
 #include <i3-sprite.h>
 
 //#include "logo-mazda.h"
-#include "mario.h"
-
-#include "Animation.h"
-#include "TranslationClip.h"
+#include "asset/mario.h"
+#include "animation/marioScreenBorder.h"
+#include "animation/marioRotation.h"
 
 #define TAG "I3-MAIN"
-
-#define MAX_FRAMES 22
-/**
- * Mario
- */
-uint16_t frames[MAX_FRAMES][3] = {
-  {  0, 0, false}, //0 Rear
-  { 32, 0, false},
-  { 64, 0, false},
-  { 96, 0, false},
-  {128, 0, false},
-  {160, 0, false},
-  {192, 0, false},
-  {224, 0, false}, //7 Right
-  {256, 0, false},
-  {288, 0, false},
-  {320, 0, false}, 
-  {352, 0, false}, //11 Front
-  {320, 0, true},
-  {288, 0, true},
-  {256, 0, true},
-  {224, 0, true},
-  {192, 0, true},
-  {160, 0, true},
-  {128, 0, true},
-  { 96, 0, true},
-  { 64, 0, true},
-  { 32, 0, true},
-};
-
-uint8_t currentFrame=0;
-uint8_t* sprites;
-
-/**
- *
- */
-void showNextFrame(uint16_t x, uint16_t y, uint8_t width, uint8_t height){
-  i3SpriteDraw({frames[currentFrame][0], frames[currentFrame][1]}, {x, y}, {width, height}, frames[currentFrame][2]);
-}
-
-void translationLeft2RightDisplay(uint16_t x, uint16_t y){
-  i3SpriteDraw({frames[7][0], frames[7][1]}, {x, y}, {31, 30}, false);
-}
-
-void translationTop2BottomDisplay(uint16_t x, uint16_t y){
-  i3SpriteDraw({frames[11][0], frames[11][1]}, {x, y}, {31, 30}, false);
-}
-
-void translationRight2LeftDisplay(uint16_t x, uint16_t y){
-  i3SpriteDraw({frames[7][0], frames[7][1]}, {x, y}, {31, 30}, true);
-}
-
-void translationBottom2TopDisplay(uint16_t x, uint16_t y){
-  i3SpriteDraw({frames[0][0], frames[0][1]}, {x, y}, {31, 30}, false);
-}
-
-Animation* avi;
-TranslationClip translationLeft2Right("translationLeft2Right",      0,      0, 319-31,    240,  1,  0, &translationLeft2RightDisplay);
-TranslationClip translationTop2Bottom("translationTop2Bottom", 319-31,      0,    320, 239-30,  0,  1, &translationTop2BottomDisplay);
-TranslationClip translationRight2Left("translationRight2Left", 319-31, 239-30,      0,    240, -1,  0, &translationRight2LeftDisplay);
-TranslationClip translationBottom2Top("translationBottom2Top",      0, 239-30,    320,      0,  0, -1, &translationBottom2TopDisplay);
 
 /**
  * MAIN
@@ -82,28 +20,19 @@ extern "C" void app_main(){
 
   ESP_LOGI(TAG, "Bonjour :-)");
 
-  sprites = i3SysPsramMallocUint8(IMAGE_WIDTH*IMAGE_HEIGHT);
-  i3Unzip(image, sizeof(image), sprites);
-  i3SpriteInit(sprites, IMAGE_WIDTH, IMAGE_HEIGHT, palette);
-
-  avi = new Animation(4);
-  avi->addClip(&translationLeft2Right);
-  avi->addClip(&translationTop2Bottom);
-  avi->addClip(&translationRight2Left);
-  avi->addClip(&translationBottom2Top);
-
+  uint8_t* sprites = i3SysPsramMallocUint8(MARIO_WIDTH*MARIO_HEIGHT);
+  i3Unzip(marioData, sizeof(marioData), sprites);
+  i3SpriteInit(sprites, MARIO_WIDTH, MARIO_HEIGHT, marioPalette);
+  
   i3LcdInit();
+
   for(;;){
     i3LcdClear(); 
-    showNextFrame(160, 120, 31, 30);
-    avi->playFrame();
+    
+    marioScreenBorderPlayFrame();
+    marioRotationPlayFrame();
+
     i3LcdSwap();
-
-    vTaskDelay (100 / portTICK_PERIOD_MS);
-
-    currentFrame++;
-    if (currentFrame >= MAX_FRAMES){
-      currentFrame=0;
-    }
+    vTaskDelay (10 / portTICK_PERIOD_MS);
   }
 }
