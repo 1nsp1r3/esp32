@@ -4,7 +4,6 @@
 #include <i3-sys.h>
 #include <i3-sprite.h>
 
-//#include "logo-mazda.h"
 #include "asset/mario.h"
 #include "animation/marioScreenBorder.h"
 #include "animation/marioRotation.h"

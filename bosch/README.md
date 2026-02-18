@@ -1,4 +1,4 @@
-D# TODO
+# TODO
 - Donner un nom spécifique à ma MX5 pour ne pas me connecter malencontrueusement à une autre
 
 # Prérequis

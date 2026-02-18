@@ -63,8 +63,8 @@ float getTemperature(){
     #else
       float temperature = i3TableGetValue(table, TABLE_SIZE, adcValue);
     #endif
-    
-    ESP_LOGI(TAG, "adc value: %d temperature: %.2f °C", adcValue, temperature);   
+
+    ESP_LOGI(TAG, "adc value: %d temperature: %.2f °C", adcValue, temperature);
     return temperature;
 }
 
@@ -84,7 +84,7 @@ float getPressure(){
     #endif
 
     if (pressure < 0) pressure = 0;
-    ESP_LOGI(TAG, "adc value: %d pressure: %.2f PSI", adcValue, pressure);   
+    ESP_LOGI(TAG, "adc value: %d pressure: %.2f PSI", adcValue, pressure);
     return pressure;
 }
 
